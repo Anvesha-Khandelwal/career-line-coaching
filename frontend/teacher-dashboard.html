@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Career Line</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Career Line</div>
+            <div>
+                <span id="teacherName" style="color: white; margin-right: 20px;"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div class="container">
+                <h1>Teacher Dashboard</h1>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="container">
+                <div class="dashboard-grid">
+                    
+                    <!-- Mark Attendance -->
+                    <div class="dashboard-card">
+                        <h3>✅ Mark Attendance</h3>
+                        <form id="attendanceForm">
+                            <div class="form-group">
+                                <label for="studentEmail">Student Email</label>
+                                <input type="email" id="studentEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <input type="text" id="subject" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status" style="width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 5px;">
+                                    <option value="present">Present</option>
+                                    <option value="absent">Absent</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-submit">Submit Attendance</button>
+                        </form>
+                    </div>
+
+                    <!-- Create Timetable -->
+                    <div class="dashboard-card">
+                        <h3>📅 Add Timetable Entry</h3>
+                        <form id="timetableForm">
+                            <div class="form-group">
+                                <label for="day">Day</label>
+                                <select id="day" style="width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 5px;">
+                                    <option>Monday</option>
+                                    <option>Tuesday</option>
+                                    <option>Wednesday</option>
+                                    <option>Thursday</option>
+                                    <option>Friday</option>
+                                    <option>Saturday</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="time">Time</label>
+                                <input type="text" id="time" placeholder="e.g., 9:00 AM - 10:00 AM" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ttSubject">Subject</label>
+                                <input type="text" id="ttSubject" required>
+                            </div>
+                            <button type="submit" class="btn-submit">Add to Timetable</button>
+                        </form>
+                    </div>
+
+                    <!-- Post Notice -->
+                    <div class="dashboard-card">
+                        <h3>📢 Post Notice</h3>
+                        <form id="noticeForm">
+                            <div class="form-group">
+                                <label for="noticeTitle">Title</label>
+                                <input type="text" id="noticeTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="noticeContent">Content</label>
+                                <textarea id="noticeContent" rows="4" style="width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 5px;" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit">Post Notice</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/teacher-dashboard.js"></script>
+</body>
+</html>

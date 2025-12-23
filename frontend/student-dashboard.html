@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Career Line</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Career Line</div>
+            <div>
+                <span id="studentName" style="color: white; margin-right: 20px;"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div class="container">
+                <h1>Student Dashboard</h1>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="container">
+                <div class="dashboard-grid">
+                    
+                    <!-- Attendance Card -->
+                    <div class="dashboard-card">
+                        <h3>📊 Attendance Overview</h3>
+                        <div id="attendanceStats">
+                            <p>Total Classes: <strong id="totalClasses">0</strong></p>
+                            <p>Classes Attended: <strong id="attendedClasses">0</strong></p>
+                            <p>Attendance Percentage: <strong id="attendancePercentage" style="color: #3498db; font-size: 1.5rem;">0%</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Timetable Card -->
+                    <div class="dashboard-card">
+                        <h3>📅 Weekly Timetable</h3>
+                        <table class="timetable-table" id="timetableTable">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timetableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Notices Card -->
+                    <div class="dashboard-card">
+                        <h3>📢 Important Notices</h3>
+                        <div id="noticesContainer">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/student-dashboard.js"></script>
+</body>
+</html>
