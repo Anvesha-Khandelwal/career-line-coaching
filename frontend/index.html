@@ -3,109 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Line - Home</title>
+    <title>Career Line - Leading Coaching Institute</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-links">
+                <a href="#results">Results</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#newsroom">Newsroom</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="top-actions">
+                <a href="#apply" class="apply-btn">APPLY ONLINE</a>
+                <a href="login.html" class="login-btn">LOGIN</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navbar -->
     <nav class="navbar">
         <div class="container">
-            <div class="logo">Career Line</div>
+            <div class="logo">
+                <h2>CAREER LINE</h2>
+                <p>Kota, Rajasthan</p>
+            </div>
             <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#courses">Courses</a></li>
-                <li><a href="#results">Results</a></li>
+                <li><a href="#courses">Courses & Fee</a></li>
+                <li><a href="#distance">Distance Learning</a></li>
+                <li><a href="#online-test">Online Test Series</a></li>
+                <li><a href="#admission">Admission</a></li>
+                <li><a href="#blog">Blog</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="login.html" class="btn-login">Login</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Welcome to Career Line</h1>
-                <p>Your journey to academic excellence starts here</p>
-                <a href="login.html" class="btn-primary">Get Started</a>
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <div class="banner-content">
+            <h1>Learners to Leaders</h1>
+            <h2>Nurtured by <span class="highlight">CAREER LINE</span></h2>
+            <p class="result-text">Result: JEE Main 2025</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>11</h3>
+                    <p>Students in Top 25 AIR</p>
+                </div>
+                <div class="stat-box">
+                    <h3>20</h3>
+                    <p>State Toppers</p>
+                </div>
+                <div class="stat-box">
+                    <h3>33</h3>
+                    <p>Students in Top 100 AIR</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Courses Section -->
-    <section class="courses" id="courses">
+    <section class="courses-section" id="courses">
         <div class="container">
-            <h2>Our Courses</h2>
+            <h2 class="section-title">Courses & Fee</h2>
+            
             <div class="course-grid">
+                <!-- JEE Main+Advanced -->
                 <div class="course-card">
-                    <div class="course-icon">📚</div>
-                    <h3>Mathematics</h3>
-                    <p>Advanced problem-solving techniques and comprehensive curriculum</p>
+                    <div class="course-icon">
+                        <img src="https://via.placeholder.com/150/4CAF50/FFFFFF?text=JEE" alt="JEE">
+                    </div>
+                    <h3>JEE (Main+Advanced)/IIT-JEE</h3>
+                    <p>JEE (Main+Advanced) Courses builds strong subject knowledge and problem-solving skills to help aspirants ace the exams to get enrolled into IITs.</p>
+                    <a href="jee-course.html" class="course-btn">Click Here</a>
                 </div>
+
+                <!-- NEET -->
                 <div class="course-card">
-                    <div class="course-icon">🔬</div>
-                    <h3>Science</h3>
-                    <p>Physics, Chemistry, and Biology taught by expert educators</p>
+                    <div class="course-icon">
+                        <img src="https://via.placeholder.com/150/2196F3/FFFFFF?text=NEET" alt="NEET">
+                    </div>
+                    <h3>Pre-Medical/NEET UG</h3>
+                    <p>NEET-UG Courses sharpen skills essential for medical entrance exams, ensuring students are well-prepared for success in the competitive medical field.</p>
+                    <a href="neet-course.html" class="course-btn">Click Here</a>
                 </div>
+
+                <!-- JEE Main -->
                 <div class="course-card">
-                    <div class="course-icon">💻</div>
-                    <h3>Computer Science</h3>
-                    <p>Programming, algorithms, and modern technology concepts</p>
+                    <div class="course-icon">
+                        <img src="https://via.placeholder.com/150/FF9800/FFFFFF?text=JEE" alt="JEE Main">
+                    </div>
+                    <h3>JEE (Main)</h3>
+                    <p>JEE (Main) courses are designed to provide students with a significant competitive edge for achieving success for their path to NITs, IIITs and equivalent colleges.</p>
+                    <a href="jee-main-course.html" class="course-btn">Click Here</a>
                 </div>
+
+                <!-- Foundation -->
                 <div class="course-card">
-                    <div class="course-icon">🌍</div>
-                    <h3>Social Studies</h3>
-                    <p>History, Geography, and Political Science made interesting</p>
+                    <div class="course-icon">
+                        <img src="https://via.placeholder.com/150/E91E63/FFFFFF?text=Foundation" alt="Foundation">
+                    </div>
+                    <h3>Pre-Nurture & Career Foundation</h3>
+                    <p>PNCF Courses for class 6th to 10th nurtures students, establishing a robust groundwork for excelling in competitive exams and Olympiads.</p>
+                    <a href="foundation-course.html" class="course-btn">Click Here</a>
+                </div>
+
+                <!-- Online Programs -->
+                <div class="course-card">
+                    <div class="course-icon">
+                        <img src="https://via.placeholder.com/150/9C27B0/FFFFFF?text=Online" alt="Online">
+                    </div>
+                    <h3>CAREER LINE Online Programs</h3>
+                    <p>New LIVE courses for classes 6-10 and Online Test Series for classes 11, 12 & 12+ to level up JEE & NEET preparation.</p>
+                    <a href="online-course.html" class="course-btn">Click Here</a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Results Section -->
-    <section class="results" id="results">
+    <section class="results-section" id="results">
         <div class="container">
-            <h2>Student Success Stories</h2>
-            <div class="testimonials">
-                <div class="testimonial-card">
-                    <p>"Career Line helped me achieve 95% in board exams!"</p>
-                    <h4>- Priya Sharma</h4>
+            <h2 class="section-title">Outstanding Results 2025</h2>
+            <div class="result-banner">
+                <h3>Once again CAREER LINEites prove their excellence</h3>
+                <div class="result-highlights">
+                    <div class="result-item">
+                        <h4>AIR 1</h4>
+                        <p>Arjun Kumar</p>
+                        <span>JEE Advanced 2025</span>
+                    </div>
+                    <div class="result-item">
+                        <h4>AIR 10</h4>
+                        <p>Priya Sharma</p>
+                        <span>NEET UG 2025</span>
+                    </div>
+                    <div class="result-item">
+                        <h4>AIR 13</h4>
+                        <p>Rahul Verma</p>
+                        <span>JEE Main 2025</span>
+                    </div>
                 </div>
-                <div class="testimonial-card">
-                    <p>"The teachers are incredibly supportive and knowledgeable."</p>
-                    <h4>- Rahul Verma</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification Section -->
+    <section class="notification-section">
+        <div class="container">
+            <h2 class="section-title">Notifications</h2>
+            <div class="notifications">
+                <div class="notification-item">
+                    <span class="new-badge">NEW</span>
+                    <p>JEE & NEET Online Test Series Now available on Amazon!</p>
                 </div>
-                <div class="testimonial-card">
-                    <p>"Best coaching institute in the city. Highly recommended!"</p>
-                    <h4>- Anita Desai</h4>
+                <div class="notification-item">
+                    <span class="new-badge">NEW</span>
+                    <p>Standard Examination in High School Science (SEHSS) 2025 Answer key and Paper Solutions</p>
+                </div>
+                <div class="notification-item">
+                    <span class="new-badge">NEW</span>
+                    <p>Register for Winter Workshop at Kota for students of class 5th to 9th</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer" id="contact">
+    <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Career Line</h3>
                     <p>Empowering students since 2020</p>
+                    <p>Kota, Rajasthan</p>
                 </div>
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="#home">Home</a></li>
                         <li><a href="#courses">Courses</a></li>
-                        <li><a href="login.html">Login</a></li>
+                        <li><a href="#results">Results</a></li>
+                        <li><a href="login.html">Student Login</a></li>
+                        <li><a href="#admission">Admission</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Contact</h4>
+                    <h4>Contact Us</h4>
                     <p>Email: info@careerline.com</p>
                     <p>Phone: +91 12345 67890</p>
+                    <p>Address: Kota, Rajasthan, India</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Career Line. All rights reserved.</p>
+                <p>&copy; 2025 Career Line. All rights reserved.</p>
             </div>
         </div>
     </footer>
