@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Career Line</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .gallery-container {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .gallery-header h1 {
+            color: #667eea;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .gallery-header p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+        .gallery-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+        .gallery-overlay h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+        .gallery-overlay p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-links">
+                <a href="index.html">Home</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="top-actions">
+                <a href="login.html" class="login-btn">LOGIN</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h2>CAREER LINE</h2>
+                <p>Kota, Rajasthan</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="gallery-container">
+        <div class="gallery-header">
+            <h1>📸 Photo Gallery</h1>
+            <p>Capturing Moments of Learning & Success</p>
+        </div>
+
+        <div class="gallery-filters">
+            <button class="filter-btn active" onclick="filterGallery('all')">All</button>
+            <button class="filter-btn" onclick="filterGallery('classroom')">Classroom</button>
+            <button class="filter-btn" onclick="filterGallery('events')">Events</button>
+            <button class="filter-btn" onclick="filterGallery('sports')">Sports</button>
+            <button class="filter-btn" onclick="filterGallery('labs')">Labs</button>
+            <button class="filter-btn" onclick="filterGallery('celebrations')">Celebrations</button>
+        </div>
+
+        <div class="gallery-grid">
+            <!-- Gallery Items -->
+            <div class="gallery-item" data-category="classroom" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/667eea/ffffff?text=Smart+Classroom" alt="Classroom">
+                <div class="gallery-overlay">
+                    <h3>Smart Classroom</h3>
+                    <p>Interactive learning environment</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="events" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/764ba2/ffffff?text=Annual+Function" alt="Annual Function">
+                <div class="gallery-overlay">
+                    <h3>Annual Function 2024</h3>
+                    <p>Celebrating achievements together</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="labs" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/96CEB4/ffffff?text=Science+Lab" alt="Lab">
+                <div class="gallery-overlay">
+                    <h3>Science Laboratory</h3>
+                    <p>Hands-on experiments</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="sports" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/FF6B6B/ffffff?text=Sports+Day" alt="Sports">
+                <div class="gallery-overlay">
+                    <h3>Sports Day 2024</h3>
+                    <p>Building teamwork and fitness</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="classroom" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/4ECDC4/ffffff?text=Study+Room" alt="Study">
+                <div class="gallery-overlay">
+                    <h3>Library & Study Room</h3>
+                    <p>Peaceful learning space</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="celebrations" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/FFEAA7/000000?text=Republic+Day" alt="Celebration">
+                <div class="gallery-overlay">
+                    <h3>Republic Day Celebration</h3>
+                    <p>Patriotic spirit and cultural programs</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="labs" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/74B9FF/ffffff?text=Computer+Lab" alt="Computer">
+                <div class="gallery-overlay">
+                    <h3>Computer Laboratory</h3>
+                    <p>Digital learning facilities</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="events" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/FD79A8/ffffff?text=Science+Fair" alt="Fair">
+                <div class="gallery-overlay">
+                    <h3>Science Fair 2024</h3>
+                    <p>Student projects and innovations</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="classroom" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/6C5CE7/ffffff?text=Math+Class" alt="Math">
+                <div class="gallery-overlay">
+                    <h3>Mathematics Class</h3>
+                    <p>Concept building sessions</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="sports" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/FDCB6E/000000?text=Indoor+Games" alt="Games">
+                <div class="gallery-overlay">
+                    <h3>Indoor Games Room</h3>
+                    <p>Chess, carrom, and table tennis</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="celebrations" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/E17055/ffffff?text=Teachers+Day" alt="Teachers">
+                <div class="gallery-overlay">
+                    <h3>Teachers' Day Celebration</h3>
+                    <p>Honoring our mentors</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="events" onclick="openLightbox(this)">
+                <img src="https://via.placeholder.com/400x300/A29BFE/ffffff?text=Parent+Meet" alt="Meeting">
+                <div class="gallery-overlay">
+                    <h3>Parent-Teacher Meeting</h3>
+                    <p>Building strong partnerships</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Career Line. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function filterGallery(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function openLightbox(element) {
+            const img = element.querySelector('img');
+            document.getElementById('lightbox-img').src = img.src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // Close lightbox on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

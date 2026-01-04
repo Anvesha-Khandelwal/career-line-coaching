@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Form - Career Line</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admission-container {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .admission-form-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .admission-form-box h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .admission-form-box p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .required {
+            color: red;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .success-message {
+            display: none;
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-links">
+                <a href="index.html">Home</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="top-actions">
+                <a href="login.html" class="login-btn">LOGIN</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h2>CAREER LINE</h2>
+                <p>Kota, Rajasthan</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admission-container">
+        <div class="admission-form-box">
+            <h1>🎓 Admission Form 2025-26</h1>
+            <p>Fill the form below to apply for admission</p>
+
+            <div id="successMessage" class="success-message">
+                ✅ Application submitted successfully! We'll contact you soon.
+            </div>
+
+            <form id="admissionForm">
+                <!-- Student Information -->
+                <h3 style="color: #667eea; margin-bottom: 20px;">Student Information</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Student Name <span class="required">*</span></label>
+                        <input type="text" id="studentName" name="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gender <span class="required">*</span></label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class Applying For <span class="required">*</span></label>
+                        <select id="class" name="class" required>
+                            <option value="">Select Class</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Board <span class="required">*</span></label>
+                        <select id="board" name="board" required>
+                            <option value="">Select Board</option>
+                            <option value="cbse">CBSE</option>
+                            <option value="rbse">RBSE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream (For Class 11-12)</label>
+                        <select id="stream" name="stream">
+                            <option value="">Select Stream</option>
+                            <option value="science">Science (PCM/PCB)</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="biology">Biology</option>
+                            <option value="commerce">Commerce</option>
+                            <option value="arts">Arts/Humanities</option>
+                            <option value="agriculture">Agriculture</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Parent Information -->
+                <h3 style="color: #667eea; margin: 30px 0 20px;">Parent/Guardian Information</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Father's Name <span class="required">*</span></label>
+                        <input type="text" id="fatherName" name="fatherName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mother's Name <span class="required">*</span></label>
+                        <input type="text" id="motherName" name="motherName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Father's Occupation</label>
+                        <input type="text" id="fatherOccupation" name="fatherOccupation">
+                    </div>
+                    <div class="form-group">
+                        <label>Mother's Occupation</label>
+                        <input type="text" id="motherOccupation" name="motherOccupation">
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <h3 style="color: #667eea; margin: 30px 0 20px;">Contact Information</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mobile Number <span class="required">*</span></label>
+                        <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Complete Address <span class="required">*</span></label>
+                    <textarea id="address" name="address" rows="3" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City <span class="required">*</span></label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pincode <span class="required">*</span></label>
+                        <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" required>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-group">
+                    <label>Previous School Name</label>
+                    <input type="text" id="previousSchool" name="previousSchool">
+                </div>
+
+                <div class="form-group">
+                    <label>Any Special Requirements or Notes</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Career Line. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('admissionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                studentName: document.getElementById('studentName').value,
+                dob: document.getElementById('dob').value,
+                gender: document.getElementById('gender').value,
+                class: document.getElementById('class').value,
+                board: document.getElementById('board').value,
+                stream: document.getElementById('stream').value,
+                fatherName: document.getElementById('fatherName').value,
+                motherName: document.getElementById('motherName').value,
+                mobile: document.getElementById('mobile').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                pincode: document.getElementById('pincode').value
+            };
+
+            // Here you would normally send data to backend
+            console.log('Form Data:', formData);
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Reset form
+            document.getElementById('admissionForm').reset();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
