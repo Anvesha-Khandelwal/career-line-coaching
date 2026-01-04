@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Career Line</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .results-container {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .results-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .results-header h1 {
+            color: #667eea;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .results-header p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto 50px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-10px);
+        }
+        .stat-card h2 {
+            color: #667eea;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .stat-card p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .toppers-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+        .toppers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .topper-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .topper-card:hover {
+            transform: translateY(-10px);
+        }
+        .topper-rank {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .topper-rank h3 {
+            font-size: 2rem;
+            margin: 0;
+        }
+        .topper-info {
+            padding: 25px;
+        }
+        .topper-info h4 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .topper-info p {
+            color: #666;
+            margin: 5px 0;
+        }
+        .percentage {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .class-filter {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .filter-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 30px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+        .year-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .year-tab {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .year-tab:hover,
+        .year-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-links">
+                <a href="index.html">Home</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="top-actions">
+                <a href="login.html" class="login-btn">LOGIN</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h2>CAREER LINE</h2>
+                <p>Kota, Rajasthan</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="results-container">
+        <div class="results-header">
+            <h1>🏆 Our Achievers</h1>
+            <p>Celebrating Excellence in Education</p>
+        </div>
+
+        <!-- Overall Statistics -->
+        <div class="results-stats">
+            <div class="stat-card">
+                <h2>100%</h2>
+                <p>Pass Percentage</p>
+            </div>
+            <div class="stat-card">
+                <h2>95%</h2>
+                <p>Students Above 75%</p>
+            </div>
+            <div class="stat-card">
+                <h2>50+</h2>
+                <p>Students Above 90%</p>
+            </div>
+            <div class="stat-card">
+                <h2>15+</h2>
+                <p>District Toppers</p>
+            </div>
+        </div>
+
+        <div class="toppers-section">
+            <!-- Year Selection -->
+            <div class="year-tabs">
+                <button class="year-tab active" onclick="filterYear(2025)">2024-25</button>
+                <button class="year-tab" onclick="filterYear(2024)">2023-24</button>
+                <button class="year-tab" onclick="filterYear(2023)">2022-23</button>
+            </div>
+
+            <!-- Class Filter -->
+            <div class="class-filter">
+                <button class="filter-btn active" onclick="filterClass('all')">All Classes</button>
+                <button class="filter-btn" onclick="filterClass('10')">Class 10</button>
+                <button class="filter-btn" onclick="filterClass('12')">Class 12</button>
+            </div>
+
+            <h2 class="section-title">🌟 Top Performers 2024-25</h2>
+
+            <!-- Toppers Grid -->
+            <div class="toppers-grid">
+                <!-- Topper 1 -->
+                <div class="topper-card" data-class="12">
+                    <div class="topper-rank">
+                        <h3>🥇 Rank 1</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Priya Sharma</h4>
+                        <p>Class 12 - Science (CBSE)</p>
+                        <div class="percentage">98.2%</div>
+                        <p><strong>Subjects:</strong> PCM</p>
+                        <p><strong>School:</strong> Govt. Sr. Sec. School</p>
+                    </div>
+                </div>
+
+                <!-- Topper 2 -->
+                <div class="topper-card" data-class="12">
+                    <div class="topper-rank">
+                        <h3>🥈 Rank 2</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Rahul Verma</h4>
+                        <p>Class 12 - Commerce (RBSE)</p>
+                        <div class="percentage">96.8%</div>
+                        <p><strong>Subjects:</strong> Commerce</p>
+                        <p><strong>School:</strong> Central Public School</p>
+                    </div>
+                </div>
+
+                <!-- Topper 3 -->
+                <div class="topper-card" data-class="10">
+                    <div class="topper-rank">
+                        <h3>🥉 Rank 3</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Anita Patel</h4>
+                        <p>Class 10 (CBSE)</p>
+                        <div class="percentage">95.5%</div>
+                        <p><strong>Subjects:</strong> All Subjects</p>
+                        <p><strong>School:</strong> Model School</p>
+                    </div>
+                </div>
+
+                <!-- Topper 4 -->
+                <div class="topper-card" data-class="12">
+                    <div class="topper-rank">
+                        <h3>🎖️ Top 5</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Arjun Singh</h4>
+                        <p>Class 12 - Science (CBSE)</p>
+                        <div class="percentage">95.0%</div>
+                        <p><strong>Subjects:</strong> PCB</p>
+                        <p><strong>School:</strong> Kendriya Vidyalaya</p>
+                    </div>
+                </div>
+
+                <!-- Topper 5 -->
+                <div class="topper-card" data-class="10">
+                    <div class="topper-rank">
+                        <h3>🎖️ Top 5</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Sneha Gupta</h4>
+                        <p>Class 10 (RBSE)</p>
+                        <div class="percentage">94.8%</div>
+                        <p><strong>Subjects:</strong> All Subjects</p>
+                        <p><strong>School:</strong> DAV Public School</p>
+                    </div>
+                </div>
+
+                <!-- Topper 6 -->
+                <div class="topper-card" data-class="12">
+                    <div class="topper-rank">
+                        <h3>🎖️ Top 10</h3>
+                    </div>
+                    <div class="topper-info">
+                        <h4>Vikram Joshi</h4>
+                        <p>Class 12 - Arts (CBSE)</p>
+                        <div class="percentage">93.5%</div>
+                        <p><strong>Subjects:</strong> Humanities</p>
+                        <p><strong>School:</strong> New Era School</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Career Line. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function filterClass(className) {
+            const cards = document.querySelectorAll('.topper-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            cards.forEach(card => {
+                if (className === 'all' || card.dataset.class === className) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterYear(year) {
+            const tabs = document.querySelectorAll('.year-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Here you would load different year data
+            console.log('Loading results for year:', year);
+        }
+    </script>
+</body>
+</html>
