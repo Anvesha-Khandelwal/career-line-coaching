@@ -728,18 +728,54 @@
                             <td>₹13,000</td>
                             <td>₹45,000</td>
                         </tr>
-                        </tbody>
+                        <tr>
+                            <td>Class 11</td>
+                            <td>Arts/Humanities</td>
+                            <td>₹4,000</td>
+                            <td>₹11,500</td>
+                            <td>₹40,000</td>
+                        </tr>
+                        <tr>
+                            <td>Class 12</td>
+                            <td>Science (PCM/PCB)</td>
+                            <td>₹6,500</td>
+                            <td>₹19,000</td>
+                            <td>₹65,000</td>
+                        </tr>
+                        <tr>
+                            <td>Class 12</td>
+                            <td>Agriculture</td>
+                            <td>₹6,000</td>
+                            <td>₹17,500</td>
+                            <td>₹60,000</td>
+                        </tr>
+                        <tr>
+                            <td>Class 12</td>
+                            <td>Commerce</td>
+                            <td>₹5,500</td>
+                            <td>₹16,000</td>
+                            <td>₹55,000</td>
+                        </tr>
+                        <tr>
+                            <td>Class 12</td>
+                            <td>Arts/Humanities</td>
+                            <td>₹5,000</td>
+                            <td>₹14,500</td>
+                            <td>₹50,000</td>
+                        </tr>
+                    </tbody>
                 </table>
                 <p style="margin-top: 20px; color: #666; font-style: italic;">
                     * All fees include Books, Study Material, Test Papers, and Progress Reports<br>
                     * 10% sibling discount available<br>
-                    * Early bird discount: 5% off on yearly payment before March 31st
+                    * Early bird discount: 5% off on yearly payment before March 31st<br>
+                    * Hindi and English medium available for all classes
                 </p>
             </div>
 
             <!-- CTA Section -->
             <div style="text-align: center; margin: 50px 0;">
-                <a href="admission.html" class="enroll-btn">🎓 Enroll Now for CBSE</a>
+                <a href="admission.html" class="enroll-btn">🎓 Enroll Now for RBSE</a>
                 <br>
                 <a href="index.html" class="back-btn">← Back to Home</a>
             </div>
@@ -756,18 +792,13 @@
 
     <script>
         function showClass(className) {
-            // Hide all class contents
             const contents = document.querySelectorAll('.class-content');
             contents.forEach(content => content.classList.remove('active'));
             
-            // Remove active class from all tabs
             const tabs = document.querySelectorAll('.class-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
             
-            // Show selected content
             document.getElementById(className).classList.add('active');
-            
-            // Add active class to clicked tab
             event.target.classList.add('active');
         }
     </script>
