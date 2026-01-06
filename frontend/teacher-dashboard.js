@@ -1,291 +1,266 @@
-// Check authentication
-const token = localStorage.getItem('token');
-const userName = localStorage.getItem('userName');
-const userRole = localStorage.getItem('userRole');
+/*************************
+ AUTH CHECK
+**************************/
+const token = localStorage.getItem("token");
+const userName = localStorage.getItem("userName");
+const userRole = localStorage.getItem("userRole");
 
-if (!token || userRole !== 'teacher') {
-    window.location.href = 'login.html';
+if (!token || userRole !== "teacher") {
+  window.location.href = "login.html";
 }
 
-// Display user name
-document.getElementById('teacherName').textContent = `Welcome, ${userName}`;
+document.getElementById("teacherName").textContent = `Welcome, ${userName}`;
 
-// Logout function
+/*************************
+ CONFIG
+**************************/
+const API_BASE = "http://localhost:5000/api";
+let students = [];
+
+/*************************
+ LOGOUT
+**************************/
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+  localStorage.clear();
+  window.location.href = "login.html";
 }
 
-// Sample students data (In real app, this would come from database)
-let students = JSON.parse(localStorage.getItem('students')) || [
-    {
-        id: 1,
-        name: 'Rahul Sharma',
-        mobile: '9876543210',
-        class: '10',
-        board: 'CBSE',
-        email: 'rahul@example.com',
-        totalFee: 50000,
-        feePaid: 30000,
-        address: 'Kota, Rajasthan'
-    },
-    {
-        id: 2,
-        name: 'Priya Verma',
-        mobile: '9876543211',
-        class: '12',
-        board: 'RBSE',
-        email: 'priya@example.com',
-        totalFee: 65000,
-        feePaid: 65000,
-        address: 'Kota, Rajasthan'
-    },
-    {
-        id: 3,
-        name: 'Amit Kumar',
-        mobile: '9876543212',
-        class: '9',
-        board: 'CBSE',
-        email: 'amit@example.com',
-        totalFee: 45000,
-        feePaid: 20000,
-        address: 'Kota, Rajasthan'
-    }
-];
-
-// Save students to localStorage
-function saveStudents() {
-    localStorage.setItem('students', JSON.stringify(students));
-}
-
-// Tab switching
+/*************************
+ TAB SWITCHING
+**************************/
 function showTab(tabName) {
-    // Hide all tabs
-    const tabs = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => tab.classList.remove('active'));
-    
-    // Remove active from all buttons
-    const buttons = document.querySelectorAll('.tab-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    // Show selected tab
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+  document.querySelectorAll(".tab-content").forEach(tab =>
+    tab.classList.remove("active")
+  );
+  document.querySelectorAll(".tab-btn").forEach(btn =>
+    btn.classList.remove("active")
+  );
+
+  document.getElementById(tabName).classList.add("active");
+  event.target.classList.add("active");
 }
 
-// Load and display students
-function loadStudents() {
-    const tbody = document.getElementById('studentTableBody');
-    tbody.innerHTML = '';
-    
+/*************************
+ LOAD STUDENTS (FROM DB)
+**************************/
+async function loadStudents() {
+  try {
+    const res = await fetch(`${API_BASE}/students`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    students = await res.json();
+
+    const tbody = document.getElementById("studentTableBody");
+    tbody.innerHTML = "";
+
     students.forEach(student => {
-        const pending = student.totalFee - student.feePaid;
-        const status = pending === 0 ? 'Paid' : pending < student.totalFee ? 'Partial' : 'Pending';
-        const statusClass = pending === 0 ? 'status-paid' : pending < student.totalFee ? 'status-partial' : 'status-pending';
-        
-        const row = `
-            <tr>
-                <td>${student.name}</td>
-                <td>${student.mobile}</td>
-                <td>Class ${student.class} (${student.board})</td>
-                <td>₹${student.totalFee.toLocaleString()}</td>
-                <td>₹${student.feePaid.toLocaleString()}</td>
-                <td class="${statusClass}">₹${pending.toLocaleString()}</td>
-                <td><span class="${statusClass}">${status}</span></td>
-                <td>
-                    ${pending > 0 ? `<button class="action-btn btn-payment" onclick="openPaymentModal(${student.id})">💰 Pay</button>` : ''}
-                    <button class="action-btn btn-edit" onclick="editStudent(${student.id})">✏️ Edit</button>
-                    <button class="action-btn btn-delete" onclick="deleteStudent(${student.id})">🗑️ Delete</button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
+      const pending = student.totalFee - student.feePaid;
+      const status =
+        pending === 0 ? "Paid" : pending < student.totalFee ? "Partial" : "Pending";
+      const statusClass =
+        pending === 0
+          ? "status-paid"
+          : pending < student.totalFee
+          ? "status-partial"
+          : "status-pending";
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${student.name}</td>
+          <td>${student.mobile}</td>
+          <td>Class ${student.class} (${student.board})</td>
+          <td>₹${student.totalFee.toLocaleString()}</td>
+          <td>₹${student.feePaid.toLocaleString()}</td>
+          <td class="${statusClass}">₹${pending.toLocaleString()}</td>
+          <td><span class="${statusClass}">${status}</span></td>
+          <td>
+            ${
+              pending > 0
+                ? `<button class="action-btn btn-payment" onclick="openPaymentModal('${student._id}')">💰 Pay</button>`
+                : ""
+            }
+            <button class="action-btn btn-edit" onclick="editStudent('${student._id}')">✏️ Edit</button>
+            <button class="action-btn btn-delete" onclick="deleteStudent('${student._id}')">🗑️ Delete</button>
+          </td>
+        </tr>
+      `;
     });
-    
+
     updateStatistics();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load students");
+  }
 }
 
-// Update statistics
+/*************************
+ STATISTICS
+**************************/
 function updateStatistics() {
-    const totalStudents = students.length;
-    const totalCollected = students.reduce((sum, s) => sum + s.feePaid, 0);
-    const totalPending = students.reduce((sum, s) => sum + (s.totalFee - s.feePaid), 0);
-    const studentsWithPending = students.filter(s => s.feePaid < s.totalFee).length;
-    
-    document.getElementById('totalStudents').textContent = totalStudents;
-    document.getElementById('totalFeeCollected').textContent = '₹' + totalCollected.toLocaleString();
-    document.getElementById('totalFeePending').textContent = '₹' + totalPending.toLocaleString();
-    document.getElementById('pendingStudents').textContent = studentsWithPending;
+  const totalStudents = students.length;
+  const totalCollected = students.reduce((s, st) => s + st.feePaid, 0);
+  const totalPending = students.reduce(
+    (s, st) => s + (st.totalFee - st.feePaid),
+    0
+  );
+  const pendingStudents = students.filter(s => s.feePaid < s.totalFee).length;
+
+  document.getElementById("totalStudents").textContent = totalStudents;
+  document.getElementById("totalFeeCollected").textContent =
+    "₹" + totalCollected.toLocaleString();
+  document.getElementById("totalFeePending").textContent =
+    "₹" + totalPending.toLocaleString();
+  document.getElementById("pendingStudents").textContent = pendingStudents;
 }
 
-// Search students
+/*************************
+ SEARCH
+**************************/
 function searchStudents() {
-    const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
-    const tbody = document.getElementById('studentTableBody');
-    const rows = tbody.getElementsByTagName('tr');
-    
-    Array.from(rows).forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
-    });
+  const term = document.getElementById("searchStudent").value.toLowerCase();
+  document.querySelectorAll("#studentTableBody tr").forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(term)
+      ? ""
+      : "none";
+  });
 }
 
-// Open add student modal
+/*************************
+ MODAL HANDLING
+**************************/
 function openAddStudentModal() {
-    document.getElementById('modalTitle').textContent = 'Add New Student';
-    document.getElementById('studentForm').reset();
-    document.getElementById('studentId').value = '';
-    document.getElementById('studentModal').classList.add('active');
+  document.getElementById("studentForm").reset();
+  document.getElementById("studentId").value = "";
+  document.getElementById("modalTitle").textContent = "Add New Student";
+  document.getElementById("studentModal").classList.add("active");
 }
 
-// Close modal
 function closeModal() {
-    document.getElementById('studentModal').classList.remove('active');
+  document.getElementById("studentModal").classList.remove("active");
 }
 
-// Edit student
+/*************************
+ EDIT STUDENT
+**************************/
 function editStudent(id) {
-    const student = students.find(s => s.id === id);
-    if (!student) return;
-    
-    document.getElementById('modalTitle').textContent = 'Edit Student';
-    document.getElementById('studentId').value = student.id;
-    document.getElementById('studentName').value = student.name;
-    document.getElementById('mobile').value = student.mobile;
-    document.getElementById('class').value = student.class;
-    document.getElementById('board').value = student.board;
-    document.getElementById('totalFee').value = student.totalFee;
-    document.getElementById('feePaid').value = student.feePaid;
-    document.getElementById('studentEmailField').value = student.email || '';
-    document.getElementById('address').value = student.address || '';
-    
-    document.getElementById('studentModal').classList.add('active');
+  const s = students.find(st => st._id === id);
+  if (!s) return;
+
+  studentId.value = s._id;
+  studentName.value = s.name;
+  mobile.value = s.mobile;
+  class.value = s.class;
+  board.value = s.board;
+  totalFee.value = s.totalFee;
+  feePaid.value = s.feePaid;
+  studentEmailField.value = s.email || "";
+  address.value = s.address || "";
+
+  document.getElementById("modalTitle").textContent = "Edit Student";
+  document.getElementById("studentModal").classList.add("active");
 }
 
-// Delete student
-function deleteStudent(id) {
-    if (confirm('Are you sure you want to delete this student?')) {
-        students = students.filter(s => s.id !== id);
-        saveStudents();
-        loadStudents();
-        alert('Student deleted successfully!');
+/*************************
+ DELETE STUDENT
+**************************/
+async function deleteStudent(id) {
+  if (!confirm("Are you sure?")) return;
+
+  await fetch(`${API_BASE}/students/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
     }
+  });
+
+  loadStudents();
 }
 
-// Save student (Add or Edit)
-document.getElementById('studentForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const id = document.getElementById('studentId').value;
-    const studentData = {
-        name: document.getElementById('studentName').value,
-        mobile: document.getElementById('mobile').value,
-        class: document.getElementById('class').value,
-        board: document.getElementById('board').value,
-        totalFee: parseInt(document.getElementById('totalFee').value),
-        feePaid: parseInt(document.getElementById('feePaid').value),
-        email: document.getElementById('studentEmailField').value,
-        address: document.getElementById('address').value
-    };
-    
-    if (id) {
-        // Edit existing student
-        const index = students.findIndex(s => s.id === parseInt(id));
-        students[index] = { ...students[index], ...studentData };
-        alert('Student updated successfully!');
-    } else {
-        // Add new student
-        const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-        students.push({ id: newId, ...studentData });
-        alert('Student added successfully!');
-    }
-    
-    saveStudents();
-    loadStudents();
-    closeModal();
+/*************************
+ ADD / UPDATE STUDENT
+**************************/
+document.getElementById("studentForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const id = studentId.value;
+
+  const data = {
+    name: studentName.value,
+    mobile: mobile.value,
+    class: class.value,
+    board: board.value,
+    totalFee: Number(totalFee.value),
+    feePaid: Number(feePaid.value),
+    email: studentEmailField.value,
+    address: address.value
+  };
+
+  const method = id ? "PUT" : "POST";
+  const url = id
+    ? `${API_BASE}/students/${id}`
+    : `${API_BASE}/students`;
+
+  await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  closeModal();
+  loadStudents();
 });
 
-// Open payment modal
-function openPaymentModal(studentId) {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const pending = student.totalFee - student.feePaid;
-    
-    document.getElementById('paymentStudentId').value = studentId;
-    document.getElementById('paymentStudentName').value = student.name;
-    document.getElementById('pendingAmount').value = '₹' + pending.toLocaleString();
-    document.getElementById('paymentAmount').value = pending;
-    document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-    
-    document.getElementById('paymentModal').classList.add('active');
+/*************************
+ PAYMENT
+**************************/
+function openPaymentModal(id) {
+  const s = students.find(st => st._id === id);
+  if (!s) return;
+
+  paymentStudentId.value = id;
+  paymentStudentName.value = s.name;
+  pendingAmount.value = "₹" + (s.totalFee - s.feePaid).toLocaleString();
+  paymentAmount.value = s.totalFee - s.feePaid;
+  paymentDate.value = new Date().toISOString().split("T")[0];
+
+  document.getElementById("paymentModal").classList.add("active");
 }
 
-// Close payment modal
 function closePaymentModal() {
-    document.getElementById('paymentModal').classList.remove('active');
+  document.getElementById("paymentModal").classList.remove("active");
 }
 
-// Record payment
-document.getElementById('paymentForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const studentId = parseInt(document.getElementById('paymentStudentId').value);
-    const paymentAmount = parseInt(document.getElementById('paymentAmount').value);
-    
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const pending = student.totalFee - student.feePaid;
-    
-    if (paymentAmount > pending) {
-        alert('Payment amount cannot be greater than pending amount!');
-        return;
+document.getElementById("paymentForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  await fetch(
+    `${API_BASE}/students/${paymentStudentId.value}/payment`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        amount: Number(paymentAmount.value),
+        date: paymentDate.value,
+        method: paymentMethod.value,
+        notes: paymentNotes.value
+      })
     }
-    
-    student.feePaid += paymentAmount;
-    
-    saveStudents();
-    loadStudents();
-    closePaymentModal();
-    
-    alert(`Payment of ₹${paymentAmount.toLocaleString()} recorded successfully!`);
+  );
+
+  closePaymentModal();
+  loadStudents();
 });
 
-// Attendance Form
-document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const studentEmail = document.getElementById('studentEmail').value;
-    const subject = document.getElementById('subject').value;
-    const status = document.getElementById('status').value;
-
-    alert('Attendance marked successfully!');
-    document.getElementById('attendanceForm').reset();
-});
-
-// Timetable Form
-document.getElementById('timetableForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const day = document.getElementById('day').value;
-    const time = document.getElementById('time').value;
-    const subject = document.getElementById('ttSubject').value;
-
-    alert('Timetable entry added successfully!');
-    document.getElementById('timetableForm').reset();
-});
-
-// Notice Form
-document.getElementById('noticeForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const title = document.getElementById('noticeTitle').value;
-    const content = document.getElementById('noticeContent').value;
-
-    alert('Notice posted successfully!');
-    document.getElementById('noticeForm').reset();
-});
-
-// Load students on page load
+/*************************
+ INITIAL LOAD
+**************************/
 loadStudents();
