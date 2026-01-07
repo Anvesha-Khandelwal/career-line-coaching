@@ -18,6 +18,27 @@ const API_BASE = "http://localhost:5000/api";
 let students = [];
 
 /*************************
+ DOM ELEMENTS
+**************************/
+const studentId = document.getElementById("studentId");
+const studentName = document.getElementById("studentName");
+const mobile = document.getElementById("mobile");
+const studentClass = document.getElementById("studentClass");
+const board = document.getElementById("board");
+const totalFee = document.getElementById("totalFee");
+const feePaid = document.getElementById("feePaid");
+const studentEmailField = document.getElementById("studentEmailField");
+const address = document.getElementById("address");
+
+const paymentStudentId = document.getElementById("paymentStudentId");
+const paymentStudentName = document.getElementById("paymentStudentName");
+const pendingAmount = document.getElementById("pendingAmount");
+const paymentAmount = document.getElementById("paymentAmount");
+const paymentDate = document.getElementById("paymentDate");
+const paymentMethod = document.getElementById("paymentMethod");
+const paymentNotes = document.getElementById("paymentNotes");
+
+/*************************
  LOGOUT
 **************************/
 function logout() {
@@ -28,7 +49,7 @@ function logout() {
 /*************************
  TAB SWITCHING
 **************************/
-function showTab(tabName) {
+function showTab(event, tabName) {
   document.querySelectorAll(".tab-content").forEach(tab =>
     tab.classList.remove("active")
   );
@@ -41,16 +62,11 @@ function showTab(tabName) {
 }
 
 /*************************
- LOAD STUDENTS (FROM DB)
+ LOAD STUDENTS
 **************************/
 async function loadStudents() {
   try {
-    const res = await fetch(`${API_BASE}/students`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
+    const res = await fetch(`${API_BASE}/students`);
     students = await res.json();
 
     const tbody = document.getElementById("studentTableBody");
@@ -100,20 +116,16 @@ async function loadStudents() {
  STATISTICS
 **************************/
 function updateStatistics() {
-  const totalStudents = students.length;
-  const totalCollected = students.reduce((s, st) => s + st.feePaid, 0);
-  const totalPending = students.reduce(
-    (s, st) => s + (st.totalFee - st.feePaid),
-    0
-  );
-  const pendingStudents = students.filter(s => s.feePaid < s.totalFee).length;
-
-  document.getElementById("totalStudents").textContent = totalStudents;
+  document.getElementById("totalStudents").textContent = students.length;
   document.getElementById("totalFeeCollected").textContent =
-    "₹" + totalCollected.toLocaleString();
+    "₹" + students.reduce((s, st) => s + st.feePaid, 0).toLocaleString();
   document.getElementById("totalFeePending").textContent =
-    "₹" + totalPending.toLocaleString();
-  document.getElementById("pendingStudents").textContent = pendingStudents;
+    "₹" +
+    students
+      .reduce((s, st) => s + (st.totalFee - st.feePaid), 0)
+      .toLocaleString();
+  document.getElementById("pendingStudents").textContent =
+    students.filter(s => s.feePaid < s.totalFee).length;
 }
 
 /*************************
@@ -129,11 +141,11 @@ function searchStudents() {
 }
 
 /*************************
- MODAL HANDLING
+ MODALS
 **************************/
 function openAddStudentModal() {
   document.getElementById("studentForm").reset();
-  document.getElementById("studentId").value = "";
+  studentId.value = "";
   document.getElementById("modalTitle").textContent = "Add New Student";
   document.getElementById("studentModal").classList.add("active");
 }
@@ -152,7 +164,7 @@ function editStudent(id) {
   studentId.value = s._id;
   studentName.value = s.name;
   mobile.value = s.mobile;
-  class.value = s.class;
+  studentClass.value = s.class;
   board.value = s.board;
   totalFee.value = s.totalFee;
   feePaid.value = s.feePaid;
@@ -168,14 +180,7 @@ function editStudent(id) {
 **************************/
 async function deleteStudent(id) {
   if (!confirm("Are you sure?")) return;
-
-  await fetch(`${API_BASE}/students/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
+  await fetch(`${API_BASE}/students/${id}`, { method: "DELETE" });
   loadStudents();
 }
 
@@ -185,12 +190,10 @@ async function deleteStudent(id) {
 document.getElementById("studentForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  const id = studentId.value;
-
   const data = {
     name: studentName.value,
     mobile: mobile.value,
-    class: class.value,
+    class: studentClass.value,
     board: board.value,
     totalFee: Number(totalFee.value),
     feePaid: Number(feePaid.value),
@@ -198,17 +201,14 @@ document.getElementById("studentForm").addEventListener("submit", async e => {
     address: address.value
   };
 
-  const method = id ? "PUT" : "POST";
-  const url = id
-    ? `${API_BASE}/students/${id}`
+  const method = studentId.value ? "PUT" : "POST";
+  const url = studentId.value
+    ? `${API_BASE}/students/${studentId.value}`
     : `${API_BASE}/students`;
 
   await fetch(url, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   });
 
@@ -239,22 +239,16 @@ function closePaymentModal() {
 document.getElementById("paymentForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  await fetch(
-    `${API_BASE}/students/${paymentStudentId.value}/payment`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        amount: Number(paymentAmount.value),
-        date: paymentDate.value,
-        method: paymentMethod.value,
-        notes: paymentNotes.value
-      })
-    }
-  );
+  await fetch(`${API_BASE}/students/${paymentStudentId.value}/payment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      amount: Number(paymentAmount.value),
+      date: paymentDate.value,
+      method: paymentMethod.value,
+      notes: paymentNotes.value
+    })
+  });
 
   closePaymentModal();
   loadStudents();
