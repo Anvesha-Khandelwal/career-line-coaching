@@ -53,14 +53,17 @@ function showError(message) {
 function showLoading(show = true) {
     const loadingDiv = document.getElementById('loading');
     const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
     
     if (loadingDiv) {
         if (show) {
             loadingDiv.classList.add('show');
             if (loginBtn) loginBtn.disabled = true;
+            if (registerBtn) registerBtn.disabled = true;
         } else {
             loadingDiv.classList.remove('show');
             if (loginBtn) loginBtn.disabled = false;
+            if (registerBtn) registerBtn.disabled = false;
         }
     }
 }

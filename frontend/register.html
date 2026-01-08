@@ -125,8 +125,17 @@
         </div>
     </div>
 
-    <script src="js/config.js"></script>
+    <!-- Load config.js FIRST -->
+  <script src="frontend/config.js"></script>
+    
+    <!-- Then load registration script -->
     <script>
+        // Check if apiCall is available
+        if (typeof apiCall === 'undefined') {
+            console.error('config.js not loaded! Check file path.');
+            alert('Configuration error. Please check if js/config.js exists.');
+        }
+
         // Role selection
         let selectedRole = 'student';
 
