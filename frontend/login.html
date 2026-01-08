@@ -5,11 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Career Line</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .error-message {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-box">
             <h2>Login to Career Line</h2>
+            
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+            
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Logging in...</p>
+            </div>
             
             <!-- Role Selector -->
             <div class="role-selector">
@@ -24,17 +81,21 @@
             <!-- Login Form -->
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email" autocomplete="email">
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
                 </div>
 
-                <button type="submit" class="btn-submit">Login</button>
+                <button type="submit" class="btn-submit" id="loginBtn">Login</button>
             </form>
+
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Register here</a>
+            </div>
 
             <div class="back-home">
                 <a href="index.html">← Back to Home</a>
@@ -42,6 +103,7 @@
         </div>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/login.js"></script>
 </body>
 </html>
