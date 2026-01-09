@@ -10,18 +10,12 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/career-line', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB Connected Successfully'))
-.catch(err => console.log('❌ MongoDB Connection Error:', err));
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/student', require('./routes/student'));
-app.use('/api/teacher', require('./routes/teacher'));
-app.use('/api/fee', require('./routes/fee'));
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/career-line')
+    .then(() => console.log('✅ MongoDB Connected Successfully'))
+    .catch(err => {
+        console.log('❌ MongoDB Connection Error:', err.message);
+        console.log('💡 Tip: Make sure MongoDB is running or use MongoDB Atlas');
+    });
 
 // Test Route
 app.get('/', (req, res) => {
@@ -31,6 +25,12 @@ app.get('/', (req, res) => {
         timestamp: new Date()
     });
 });
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/student', require('./routes/student'));
+app.use('/api/teacher', require('./routes/teacher'));
+app.use('/api/fee', require('./routes/fee'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -45,4 +45,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📡 API URL: http://localhost:${PORT}`);
+    console.log(`✅ Server is ready to accept requests`);
 });
