@@ -4,139 +4,398 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Career Line</title>
-    <link rel="stylesheet" href="css/style.css">
     <style>
-        .error-message {
-            display: none;
-            background: #ef4444;
-            color: white;
-            padding: 14px 16px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .divider {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .alert {
+            padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
-            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
-        }
-        .error-message.show {
-            display: block;
+            display: none;
             animation: slideDown 0.3s ease-out;
         }
+
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .role-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .role-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .role-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .loading {
             display: none;
             text-align: center;
-            margin: 15px 0;
+            padding: 20px;
         }
+
         .loading.show {
             display: block;
         }
+
         .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #2563eb;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            animation: spin 0.8s linear infinite;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
             margin: 0 auto 10px;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .register-link {
+
+        .links {
             text-align: center;
-            margin-top: 24px;
-            color: #6b7280;
-            font-size: 0.95rem;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
         }
-        .register-link a {
-            color: #2563eb;
+
+        .links a {
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s;
         }
-        .register-link a:hover {
-            color: #1e40af;
+
+        .links a:hover {
+            color: #764ba2;
             text-decoration: underline;
         }
-        .back-home {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-        .back-home a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .back-home a:hover {
-            color: #1e40af;
-            text-decoration: underline;
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 30px 25px;
+            }
+
+            .logo h1 {
+                font-size: 1.6rem;
+            }
+
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <h2>Login to Career Line</h2>
-            
-            <!-- Error Message -->
-            <div id="errorMessage" class="error-message"></div>
-            
-            <!-- Loading Spinner -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Logging in...</p>
-            </div>
-            
-            <!-- Role Selector -->
+    <div class="container">
+        <div class="logo">
+            <h1>Career Line</h1>
+            <p>Welcome Back!</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="errorMessage" class="alert alert-error"></div>
+        <div id="successMessage" class="alert alert-success"></div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="color: #666;">Logging you in...</p>
+        </div>
+
+        <form id="loginForm">
             <div class="role-selector">
-                <button class="role-btn active" data-role="student" id="studentBtn">
+                <button type="button" class="role-btn active" id="studentBtn">
                     👨‍🎓 Student
                 </button>
-                <button class="role-btn" data-role="teacher" id="teacherBtn">
+                <button type="button" class="role-btn" id="teacherBtn">
                     👨‍🏫 Teacher
                 </button>
             </div>
 
-            <!-- Login Form -->
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email" autocomplete="email">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
-                </div>
-
-                <button type="submit" class="btn-submit" id="loginBtn">Login</button>
-            </form>
-
-            <div class="register-link">
-                Don't have an account? <a href="register.html">Register here</a>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="your.email@example.com" required autocomplete="email">
             </div>
 
-            <div class="back-home">
-                <a href="index.html">← Back to Home</a>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
             </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Login</button>
+        </form>
+
+        <div class="links">
+            <p style="color: #666; margin-bottom: 10px;">Don't have an account?</p>
+            <a href="register.html">Create Account</a>
+            <span style="color: #ccc; margin: 0 10px;">|</span>
+            <a href="index.html">Back to Home</a>
         </div>
     </div>
 
-    <script src="config.js"></script>
-    <script src="login.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let selectedRole = 'student';
+
+        // Role selection
+        document.getElementById('studentBtn').addEventListener('click', () => {
+            selectedRole = 'student';
+            document.getElementById('studentBtn').classList.add('active');
+            document.getElementById('teacherBtn').classList.remove('active');
+        });
+
+        document.getElementById('teacherBtn').addEventListener('click', () => {
+            selectedRole = 'teacher';
+            document.getElementById('teacherBtn').classList.add('active');
+            document.getElementById('studentBtn').classList.remove('active');
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = '⚠️ ' + message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = '✅ ' + message;
+            successDiv.classList.add('show');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+            document.getElementById('loginForm').style.display = show ? 'none' : 'block';
+            document.getElementById('submitBtn').disabled = show;
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('token')) {
+            const role = localStorage.getItem('userRole');
+            if (role === 'student') {
+                window.location.href = 'student-dashboard.html';
+            } else if (role === 'teacher') {
+                window.location.href = 'teacher-dashboard.html';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role: selectedRole })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Store user data
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userRole', data.role);
+                localStorage.setItem('userName', data.name);
+                localStorage.setItem('userEmail', email);
+
+                showLoading(false);
+                showSuccess(`Welcome back, ${data.name}! Redirecting...`);
+
+                setTimeout(() => {
+                    if (data.role === 'student') {
+                        window.location.href = 'student-dashboard.html';
+                    } else {
+                        window.location.href = 'teacher-dashboard.html';
+                    }
+                }, 1000);
+
+            } catch (error) {
+                showLoading(false);
+                
+                let errorMessage = 'Login failed. ';
+                
+                if (error.message.includes('fetch')) {
+                    errorMessage += 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
+                } else if (error.message.includes('credentials')) {
+                    errorMessage += 'Invalid email or password. Please check and try again.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showError(errorMessage);
+            }
+        });
+    </script>
 </body>
 </html>

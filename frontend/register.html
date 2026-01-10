@@ -4,160 +4,373 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Career Line</title>
-    <link rel="stylesheet" href="css/style.css">
     <style>
-        .error-message {
-            display: none;
-            background: #ff6b6b;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .error-message.show {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .divider {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert.show {
             display: block;
         }
-        .success-message {
-            display: none;
-            background: #4CAF50;
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .role-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .role-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .role-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        .success-message.show {
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
             display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .loading {
             display: none;
             text-align: center;
-            margin: 10px 0;
+            padding: 20px;
         }
+
         .loading.show {
             display: block;
         }
+
         .spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #667eea;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 10px;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .login-link {
+
+        .links {
             text-align: center;
-            margin-top: 20px;
-            color: #666;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
         }
-        .login-link a {
+
+        .links a {
             color: #667eea;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+        }
+
+        .strength-weak { width: 33%; background: #ff6b6b; }
+        .strength-medium { width: 66%; background: #ffa726; }
+        .strength-strong { width: 100%; background: #66bb6a; }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 30px 25px;
+            }
+
+            .logo h1 {
+                font-size: 1.6rem;
+            }
+
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <h2>Register for Career Line</h2>
-            
-            <!-- Error Message -->
-            <div id="errorMessage" class="error-message"></div>
-            
-            <!-- Success Message -->
-            <div id="successMessage" class="success-message"></div>
-            
-            <!-- Loading Spinner -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Creating account...</p>
-            </div>
-            
-            <!-- Role Selector -->
+    <div class="container">
+        <div class="logo">
+            <h1>Career Line</h1>
+            <p>Create Your Account</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="errorMessage" class="alert alert-error"></div>
+        <div id="successMessage" class="alert alert-success"></div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="color: #666;">Creating your account...</p>
+        </div>
+
+        <form id="registerForm">
             <div class="role-selector">
-                <button class="role-btn active" data-role="student" id="studentBtn">
+                <button type="button" class="role-btn" id="studentBtn">
                     👨‍🎓 Student
                 </button>
-                <button class="role-btn" data-role="teacher" id="teacherBtn">
+                <button type="button" class="role-btn active" id="teacherBtn">
                     👨‍🏫 Teacher
                 </button>
             </div>
 
-            <!-- Registration Form -->
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="name">Full Name *</label>
-                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter password (min 6 characters)" minlength="6">
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password *</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
-                </div>
-
-                <button type="submit" class="btn-submit" id="registerBtn">Register</button>
-            </form>
-
-            <div class="login-link">
-                Already have an account? <a href="login.html">Login here</a>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
             </div>
 
-            <div class="back-home">
-                <a href="index.html">← Back to Home</a>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="your.email@example.com" required>
             </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Minimum 6 characters" required minlength="6">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Re-enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Create Account</button>
+        </form>
+
+        <div class="links">
+            <p style="color: #666; margin-bottom: 10px;">Already have an account?</p>
+            <a href="login.html">Login Here</a>
+            <span style="color: #ccc; margin: 0 10px;">|</span>
+            <a href="index.html">Back to Home</a>
         </div>
     </div>
 
-    <!-- Load config.js FIRST -->
-  <script src="./config.js"></script>
-    
-    <!-- Then load registration script -->
     <script>
-        // Check if apiCall is available
-        if (typeof apiCall === 'undefined') {
-            console.error('config.js not loaded! Check file path.');
-            alert('Configuration error. Please check if js/config.js exists.');
-        }
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let selectedRole = 'teacher';
 
         // Role selection
-        let selectedRole = 'student';
-
-        const studentBtn = document.getElementById('studentBtn');
-        const teacherBtn = document.getElementById('teacherBtn');
-
-        studentBtn.addEventListener('click', () => {
+        document.getElementById('studentBtn').addEventListener('click', () => {
             selectedRole = 'student';
-            studentBtn.classList.add('active');
-            teacherBtn.classList.remove('active');
+            document.getElementById('studentBtn').classList.add('active');
+            document.getElementById('teacherBtn').classList.remove('active');
         });
 
-        teacherBtn.addEventListener('click', () => {
+        document.getElementById('teacherBtn').addEventListener('click', () => {
             selectedRole = 'teacher';
-            teacherBtn.classList.add('active');
-            studentBtn.classList.remove('active');
+            document.getElementById('teacherBtn').classList.add('active');
+            document.getElementById('studentBtn').classList.remove('active');
         });
 
-        // Registration form submission
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('strengthBar');
+            
+            if (password.length === 0) {
+                strengthBar.className = 'password-strength-bar';
+            } else if (password.length < 6) {
+                strengthBar.className = 'password-strength-bar strength-weak';
+            } else if (password.length < 10) {
+                strengthBar.className = 'password-strength-bar strength-medium';
+            } else {
+                strengthBar.className = 'password-strength-bar strength-strong';
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = '⚠️ ' + message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = '✅ ' + message;
+            successDiv.classList.add('show');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+            document.getElementById('registerForm').style.display = show ? 'none' : 'block';
+            document.getElementById('submitBtn').disabled = show;
+        }
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -175,86 +388,54 @@
             }
 
             if (password.length < 6) {
-                showError('Password must be at least 6 characters long');
+                showError('Password must be at least 6 characters');
                 return;
             }
 
-            // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showError('Please enter a valid email address');
                 return;
             }
 
-            // Show loading
             showLoading(true);
 
             try {
-                // Call register API
-                const data = await apiCall('/auth/register', {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
-                    body: JSON.stringify({ 
-                        name, 
-                        email, 
-                        password, 
-                        role: selectedRole 
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role: selectedRole })
                 });
 
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
                 showLoading(false);
+                showSuccess(`Welcome ${data.name}! Redirecting to login...`);
 
-                // Show success message
-                const successDiv = document.getElementById('successMessage');
-                successDiv.textContent = `✅ Registration successful! Welcome ${data.name}. Redirecting to login...`;
-                successDiv.classList.add('show');
-
-                // Hide form
-                document.getElementById('registerForm').style.display = 'none';
-
-                // Redirect to login after 2 seconds
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
 
             } catch (error) {
                 showLoading(false);
-                console.error('Registration Error:', error);
                 
-                let errorMessage = 'Registration failed. Please try again.';
+                let errorMessage = 'Registration failed. ';
                 
-                if (error.message.includes('exists')) {
-                    errorMessage = 'This email is already registered. Please use a different email or login.';
-                } else if (error.message.includes('network') || error.message.includes('fetch')) {
-                    errorMessage = 'Cannot connect to server. Please make sure the backend is running.';
-                } else if (error.message) {
-                    errorMessage = error.message;
+                if (error.message.includes('fetch')) {
+                    errorMessage += 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
+                } else if (error.message.includes('exists')) {
+                    errorMessage += 'This email is already registered. Please use a different email or login.';
+                } else {
+                    errorMessage += error.message;
                 }
                 
                 showError(errorMessage);
             }
         });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
-        }
-
-        function showLoading(show = true) {
-            const loadingDiv = document.getElementById('loading');
-            const registerBtn = document.getElementById('registerBtn');
-            
-            if (show) {
-                loadingDiv.classList.add('show');
-                registerBtn.disabled = true;
-            } else {
-                loadingDiv.classList.remove('show');
-                registerBtn.disabled = false;
-            }
-        }
     </script>
 </body>
 </html>
