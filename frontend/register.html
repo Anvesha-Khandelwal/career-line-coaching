@@ -274,10 +274,10 @@
 
         <form id="registerForm">
             <div class="role-selector">
-                <button type="button" class="role-btn" id="studentBtn">
+                <button type="button" class="role-btn active" id="studentBtn">
                     👨‍🎓 Student
                 </button>
-                <button type="button" class="role-btn active" id="teacherBtn">
+                <button type="button" class="role-btn" id="teacherBtn">
                     👨‍🏫 Teacher
                 </button>
             </div>
@@ -318,7 +318,45 @@
 
     <script>
         const API_BASE_URL = 'http://localhost:5000/api';
-        let selectedRole = 'teacher';
+        let selectedRole = 'student';
+
+        // Test server connection on page load
+        async function testServerConnection() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+                
+                const response = await fetch('http://localhost:5000/', {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    console.log('✅ Server is running');
+                    return true;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.warn('⚠️ Server connection timeout');
+                } else {
+                    console.warn('⚠️ Server connection test failed:', error.message);
+                }
+                return false;
+            }
+            return false;
+        }
+
+        // Check server on page load (non-blocking)
+        window.addEventListener('DOMContentLoaded', () => {
+            testServerConnection().then(isConnected => {
+                if (!isConnected) {
+                    // Show a helpful message but don't block the form
+                    console.warn('Backend server may not be running. Make sure to start it at http://localhost:5000');
+                }
+            });
+        });
 
         // Role selection
         document.getElementById('studentBtn').addEventListener('click', () => {
@@ -351,15 +389,35 @@
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = '⚠️ ' + message;
-            errorDiv.classList.add('show');
-            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+            const successDiv = document.getElementById('successMessage');
+            
+            // Hide success message if showing
+            if (successDiv) {
+                successDiv.classList.remove('show');
+            }
+            
+            if (errorDiv) {
+                errorDiv.textContent = '⚠️ ' + message;
+                errorDiv.classList.add('show');
+                setTimeout(() => errorDiv.classList.remove('show'), 5000);
+            } else {
+                alert('Error: ' + message);
+            }
         }
 
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = '✅ ' + message;
-            successDiv.classList.add('show');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Hide error message if showing
+            if (errorDiv) {
+                errorDiv.classList.remove('show');
+            }
+            
+            if (successDiv) {
+                successDiv.textContent = '✅ ' + message;
+                successDiv.classList.add('show');
+            }
         }
 
         function showLoading(show) {
@@ -401,21 +459,51 @@
             showLoading(true);
 
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password, role: selectedRole })
-                });
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password, role: selectedRole })
+                    });
+                } catch (fetchError) {
+                    // Network error - server not reachable
+                    throw new Error('NETWORK_ERROR');
+                }
 
-                const data = await response.json();
+                // Check if response is ok before parsing JSON
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    // If we can't parse JSON, server might be down or returned invalid response
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                    }
+                    throw new Error('Invalid response from server');
+                }
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Registration failed');
+                    throw new Error(data.message || `Registration failed: ${response.status}`);
+                }
+
+                // Validate response data
+                if (!data.name || !data.role) {
+                    throw new Error('Invalid response from server');
                 }
 
                 showLoading(false);
-                showSuccess(`Welcome ${data.name}! Redirecting to login...`);
+                showSuccess(`Welcome ${data.name}! Account created successfully. Redirecting to login...`);
 
+                // Store token if provided (optional auto-login)
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userRole', data.role);
+                    localStorage.setItem('userName', data.name);
+                    localStorage.setItem('userEmail', email);
+                }
+
+                // Always redirect to login page after registration
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
@@ -425,15 +513,34 @@
                 
                 let errorMessage = 'Registration failed. ';
                 
-                if (error.message.includes('fetch')) {
-                    errorMessage += 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
-                } else if (error.message.includes('exists')) {
-                    errorMessage += 'This email is already registered. Please use a different email or login.';
-                } else {
-                    errorMessage += error.message;
+                // Handle network errors - server not running or unreachable
+                if (error.message === 'NETWORK_ERROR' || 
+                    error.message.includes('fetch') || 
+                    error.message.includes('Failed to fetch') || 
+                    error.message.includes('NetworkError') || 
+                    error.name === 'TypeError' ||
+                    error.message.includes('Network request failed')) {
+                    errorMessage = 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
+                } 
+                // Handle duplicate user errors
+                else if (error.message.includes('exists') || error.message.includes('already') || error.message.includes('duplicate')) {
+                    errorMessage = 'This email is already registered for this role. Please use a different email or login.';
+                } 
+                // Handle validation errors
+                else if (error.message.includes('required') || error.message.includes('fields') || error.message.includes('Invalid')) {
+                    errorMessage = error.message;
+                }
+                // Handle server errors
+                else if (error.message.includes('Server error') || error.message.includes('500')) {
+                    errorMessage = 'Server error occurred. Please try again later.';
+                }
+                // Handle other errors
+                else {
+                    errorMessage = error.message || 'Registration failed. Please try again.';
                 }
                 
                 showError(errorMessage);
+                console.error('Registration error:', error);
             }
         });
     </script>
