@@ -1,61 +1,124 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
-const Attendance = require('../models/Attendance');
-const Timetable = require('../models/Timetable');
-const Notice = require('../models/Notice');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-// Get Attendance
-router.get('/attendance', auth, async (req, res) => {
+// Register endpoint
+router.post('/register', async (req, res) => {
     try {
-        if (req.user.role !== 'student') {
-            return res.status(403).json({ message: 'Access denied' });
+        console.log('📝 Registration request received:', req.body);
+        
+        const { name, email, password, role } = req.body;
+
+        // Validation
+        if (!name || !email || !password || !role) {
+            console.log('❌ Missing fields');
+            return res.status(400).json({ message: 'All fields are required' });
         }
 
-        const attendance = await Attendance.find({ studentEmail: req.user.email });
+        // Validate role
+        if (!['student', 'teacher'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Must be student or teacher' });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email, role });
+        if (existingUser) {
+            console.log('❌ User already exists');
+            return res.status(400).json({ message: 'User already exists with this email and role' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            role
+        });
+
+        await user.save();
+        console.log('✅ User registered:', { id: user._id, email: user.email, role: user.role });
+
+        // Generate token
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET || 'secret_key_12345',
+            { expiresIn: '7d' }
+        );
+
+        res.status(201).json({
+            message: 'Registration successful',
+            token,
+            name: user.name,
+            role: user.role
+        });
+
+    } catch (error) {
+        console.error('❌ Registration error:', error);
         
-        const totalClasses = attendance.length;
-        const attendedClasses = attendance.filter(a => a.status === 'present').length;
-        const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'User already exists with this email and role' });
+        }
+        
+        res.status(500).json({ message: 'Server error: ' + error.message });
+    }
+});
+
+// Login endpoint
+router.post('/login', async (req, res) => {
+    try {
+        console.log('🔐 Login request received:', { email: req.body.email, role: req.body.role });
+        
+        const { email, password, role } = req.body;
+
+        // Validation
+        if (!email || !password || !role) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Validate role
+        if (!['student', 'teacher'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Must be student or teacher' });
+        }
+
+        // Find user
+        const user = await User.findOne({ email, role });
+        if (!user) {
+            console.log('❌ User not found');
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            console.log('❌ Invalid password');
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        console.log('✅ Login successful:', user.email);
+
+        // Generate token
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET || 'secret_key_12345',
+            { expiresIn: '7d' }
+        );
 
         res.json({
-            totalClasses,
-            attendedClasses,
-            percentage,
-            records: attendance
+            message: 'Login successful',
+            token,
+            name: user.name,
+            role: user.role
         });
+
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-// Get Timetable
-router.get('/timetable', auth, async (req, res) => {
-    try {
-        if (req.user.role !== 'student') {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        const timetable = await Timetable.find().sort({ day: 1, time: 1 });
-        
-        res.json({ timetable });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-// Get Notices
-router.get('/notices', auth, async (req, res) => {
-    try {
-        if (req.user.role !== 'student') {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        const notices = await Notice.find().sort({ date: -1 }).limit(10);
-        
-        res.json({ notices });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('❌ Login error:', error);
+        res.status(500).json({ message: 'Server error: ' + error.message });
     }
 });
 
