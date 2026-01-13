@@ -6,6 +6,7 @@ const userName = localStorage.getItem("userName");
 const userRole = localStorage.getItem("userRole");
 
 if (!token || userRole !== "teacher") {
+  alert("Please login as a teacher first!");
   window.location.href = "login.html";
 }
 
@@ -18,46 +19,32 @@ const API_BASE = "http://localhost:5000/api";
 let students = [];
 
 /*************************
- DOM ELEMENTS
-**************************/
-const studentId = document.getElementById("studentId");
-const studentName = document.getElementById("studentName");
-const mobile = document.getElementById("mobile");
-const studentClass = document.getElementById("studentClass");
-const board = document.getElementById("board");
-const totalFee = document.getElementById("totalFee");
-const feePaid = document.getElementById("feePaid");
-const studentEmailField = document.getElementById("studentEmailField");
-const address = document.getElementById("address");
-
-const paymentStudentId = document.getElementById("paymentStudentId");
-const paymentStudentName = document.getElementById("paymentStudentName");
-const pendingAmount = document.getElementById("pendingAmount");
-const paymentAmount = document.getElementById("paymentAmount");
-const paymentDate = document.getElementById("paymentDate");
-const paymentMethod = document.getElementById("paymentMethod");
-const paymentNotes = document.getElementById("paymentNotes");
-
-/*************************
  LOGOUT
 **************************/
 function logout() {
-  localStorage.clear();
-  window.location.href = "login.html";
+  if (confirm("Are you sure you want to logout?")) {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
 }
 
 /*************************
  TAB SWITCHING
 **************************/
-function showTab(event, tabName) {
+function showTab(tabName) {
+  // Hide all tabs
   document.querySelectorAll(".tab-content").forEach(tab =>
     tab.classList.remove("active")
   );
+  // Remove active from all buttons
   document.querySelectorAll(".tab-btn").forEach(btn =>
     btn.classList.remove("active")
   );
 
+  // Show selected tab
   document.getElementById(tabName).classList.add("active");
+  
+  // Add active to clicked button
   event.target.classList.add("active");
 }
 
@@ -66,50 +53,74 @@ function showTab(event, tabName) {
 **************************/
 async function loadStudents() {
   try {
-    const res = await fetch(`${API_BASE}/students`);
+    console.log('📋 Loading students...');
+    const res = await fetch(`${API_BASE}/student`);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
     students = await res.json();
+    console.log(`✅ Loaded ${students.length} students`);
 
-    const tbody = document.getElementById("studentTableBody");
-    tbody.innerHTML = "";
-
-    students.forEach(student => {
-      const pending = student.totalFee - student.feePaid;
-      const status =
-        pending === 0 ? "Paid" : pending < student.totalFee ? "Partial" : "Pending";
-      const statusClass =
-        pending === 0
-          ? "status-paid"
-          : pending < student.totalFee
-          ? "status-partial"
-          : "status-pending";
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${student.name}</td>
-          <td>${student.mobile}</td>
-          <td>Class ${student.class} (${student.board})</td>
-          <td>₹${student.totalFee.toLocaleString()}</td>
-          <td>₹${student.feePaid.toLocaleString()}</td>
-          <td class="${statusClass}">₹${pending.toLocaleString()}</td>
-          <td><span class="${statusClass}">${status}</span></td>
-          <td>
-            ${
-              pending > 0
-                ? `<button class="action-btn btn-payment" onclick="openPaymentModal('${student._id}')">💰 Pay</button>`
-                : ""
-            }
-            <button class="action-btn btn-edit" onclick="editStudent('${student._id}')">✏️ Edit</button>
-            <button class="action-btn btn-delete" onclick="deleteStudent('${student._id}')">🗑️ Delete</button>
-          </td>
-        </tr>
-      `;
-    });
-
+    displayStudents();
     updateStatistics();
   } catch (err) {
-    console.error(err);
-    alert("Failed to load students");
+    console.error('❌ Failed to load students:', err);
+    alert("Failed to load students. Make sure the backend is running!");
   }
+}
+
+/*************************
+ DISPLAY STUDENTS
+**************************/
+function displayStudents() {
+  const tbody = document.getElementById("studentTableBody");
+  tbody.innerHTML = "";
+
+  if (students.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+          No students added yet. Click "Add New Student" to get started!
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  students.forEach(student => {
+    const pending = student.totalFee - student.feePaid;
+    const status =
+      pending === 0 ? "Paid" : pending < student.totalFee ? "Partial" : "Pending";
+    const statusClass =
+      pending === 0
+        ? "status-paid"
+        : pending < student.totalFee
+        ? "status-partial"
+        : "status-pending";
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${student.name}</td>
+        <td>${student.mobile}</td>
+        <td>Class ${student.class} (${student.board})</td>
+        <td>₹${student.totalFee.toLocaleString()}</td>
+        <td>₹${student.feePaid.toLocaleString()}</td>
+        <td class="${statusClass}">₹${pending.toLocaleString()}</td>
+        <td><span class="${statusClass}">${status}</span></td>
+        <td>
+          ${
+            pending > 0
+              ? `<button class="action-btn btn-payment" onclick="openPaymentModal('${student._id}')">💰 Pay</button>`
+              : ""
+          }
+          <button class="action-btn btn-edit" onclick="editStudent('${student._id}')">✏️ Edit</button>
+          <button class="action-btn btn-delete" onclick="deleteStudent('${student._id}')">🗑️ Delete</button>
+        </td>
+      </tr>
+    `;
+  });
 }
 
 /*************************
@@ -117,15 +128,15 @@ async function loadStudents() {
 **************************/
 function updateStatistics() {
   document.getElementById("totalStudents").textContent = students.length;
-  document.getElementById("totalFeeCollected").textContent =
-    "₹" + students.reduce((s, st) => s + st.feePaid, 0).toLocaleString();
-  document.getElementById("totalFeePending").textContent =
-    "₹" +
-    students
-      .reduce((s, st) => s + (st.totalFee - st.feePaid), 0)
-      .toLocaleString();
-  document.getElementById("pendingStudents").textContent =
-    students.filter(s => s.feePaid < s.totalFee).length;
+  
+  const totalCollected = students.reduce((sum, st) => sum + st.feePaid, 0);
+  document.getElementById("totalFeeCollected").textContent = "₹" + totalCollected.toLocaleString();
+  
+  const totalPending = students.reduce((sum, st) => sum + (st.totalFee - st.feePaid), 0);
+  document.getElementById("totalFeePending").textContent = "₹" + totalPending.toLocaleString();
+  
+  const pendingStudentsCount = students.filter(s => s.feePaid < s.totalFee).length;
+  document.getElementById("pendingStudents").textContent = pendingStudentsCount;
 }
 
 /*************************
@@ -134,9 +145,7 @@ function updateStatistics() {
 function searchStudents() {
   const term = document.getElementById("searchStudent").value.toLowerCase();
   document.querySelectorAll("#studentTableBody tr").forEach(row => {
-    row.style.display = row.textContent.toLowerCase().includes(term)
-      ? ""
-      : "none";
+    row.style.display = row.textContent.toLowerCase().includes(term) ? "" : "none";
   });
 }
 
@@ -145,7 +154,7 @@ function searchStudents() {
 **************************/
 function openAddStudentModal() {
   document.getElementById("studentForm").reset();
-  studentId.value = "";
+  document.getElementById("studentId").value = "";
   document.getElementById("modalTitle").textContent = "Add New Student";
   document.getElementById("studentModal").classList.add("active");
 }
@@ -159,17 +168,20 @@ function closeModal() {
 **************************/
 function editStudent(id) {
   const s = students.find(st => st._id === id);
-  if (!s) return;
+  if (!s) {
+    alert("Student not found!");
+    return;
+  }
 
-  studentId.value = s._id;
-  studentName.value = s.name;
-  mobile.value = s.mobile;
-  studentClass.value = s.class;
-  board.value = s.board;
-  totalFee.value = s.totalFee;
-  feePaid.value = s.feePaid;
-  studentEmailField.value = s.email || "";
-  address.value = s.address || "";
+  document.getElementById("studentId").value = s._id;
+  document.getElementById("studentName").value = s.name;
+  document.getElementById("mobile").value = s.mobile;
+  document.getElementById("class").value = s.class;
+  document.getElementById("board").value = s.board;
+  document.getElementById("totalFee").value = s.totalFee;
+  document.getElementById("feePaid").value = s.feePaid;
+  document.getElementById("studentEmailField").value = s.email || "";
+  document.getElementById("address").value = s.address || "";
 
   document.getElementById("modalTitle").textContent = "Edit Student";
   document.getElementById("studentModal").classList.add("active");
@@ -179,55 +191,88 @@ function editStudent(id) {
  DELETE STUDENT
 **************************/
 async function deleteStudent(id) {
-  if (!confirm("Are you sure?")) return;
-  await fetch(`${API_BASE}/students/${id}`, { method: "DELETE" });
-  loadStudents();
+  const student = students.find(s => s._id === id);
+  if (!confirm(`Are you sure you want to delete ${student.name}?`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/student/${id}`, { 
+      method: "DELETE" 
+    });
+
+    if (!res.ok) {
+      throw new Error('Delete failed');
+    }
+
+    alert("Student deleted successfully!");
+    loadStudents();
+  } catch (err) {
+    console.error('❌ Delete error:', err);
+    alert("Failed to delete student!");
+  }
 }
 
 /*************************
  ADD / UPDATE STUDENT
 **************************/
-document.getElementById("studentForm").addEventListener("submit", async e => {
+document.getElementById("studentForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const studentId = document.getElementById("studentId").value;
   const data = {
-    name: studentName.value,
-    mobile: mobile.value,
-    class: studentClass.value,
-    board: board.value,
-    totalFee: Number(totalFee.value),
-    feePaid: Number(feePaid.value),
-    email: studentEmailField.value,
-    address: address.value
+    name: document.getElementById("studentName").value,
+    mobile: document.getElementById("mobile").value,
+    class: document.getElementById("class").value,
+    board: document.getElementById("board").value,
+    totalFee: Number(document.getElementById("totalFee").value),
+    feePaid: Number(document.getElementById("feePaid").value),
+    email: document.getElementById("studentEmailField").value,
+    address: document.getElementById("address").value
   };
 
-  const method = studentId.value ? "PUT" : "POST";
-  const url = studentId.value
-    ? `${API_BASE}/students/${studentId.value}`
-    : `${API_BASE}/students`;
+  try {
+    const method = studentId ? "PUT" : "POST";
+    const url = studentId
+      ? `${API_BASE}/student/${studentId}`
+      : `${API_BASE}/student`;
 
-  await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
 
-  closeModal();
-  loadStudents();
+    if (!res.ok) {
+      throw new Error('Save failed');
+    }
+
+    alert(studentId ? "Student updated successfully!" : "Student added successfully!");
+    closeModal();
+    loadStudents();
+  } catch (err) {
+    console.error('❌ Save error:', err);
+    alert("Failed to save student!");
+  }
 });
 
 /*************************
- PAYMENT
+ PAYMENT MODAL
 **************************/
 function openPaymentModal(id) {
   const s = students.find(st => st._id === id);
-  if (!s) return;
+  if (!s) {
+    alert("Student not found!");
+    return;
+  }
 
-  paymentStudentId.value = id;
-  paymentStudentName.value = s.name;
-  pendingAmount.value = "₹" + (s.totalFee - s.feePaid).toLocaleString();
-  paymentAmount.value = s.totalFee - s.feePaid;
-  paymentDate.value = new Date().toISOString().split("T")[0];
+  const pending = s.totalFee - s.feePaid;
+
+  document.getElementById("paymentStudentId").value = id;
+  document.getElementById("paymentStudentName").value = s.name;
+  document.getElementById("pendingAmount").value = "₹" + pending.toLocaleString();
+  document.getElementById("paymentAmount").value = pending;
+  document.getElementById("paymentDate").value = new Date().toISOString().split("T")[0];
 
   document.getElementById("paymentModal").classList.add("active");
 }
@@ -236,25 +281,72 @@ function closePaymentModal() {
   document.getElementById("paymentModal").classList.remove("active");
 }
 
-document.getElementById("paymentForm").addEventListener("submit", async e => {
+/*************************
+ RECORD PAYMENT
+**************************/
+document.getElementById("paymentForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  await fetch(`${API_BASE}/students/${paymentStudentId.value}/payment`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      amount: Number(paymentAmount.value),
-      date: paymentDate.value,
-      method: paymentMethod.value,
-      notes: paymentNotes.value
-    })
-  });
+  const studentId = document.getElementById("paymentStudentId").value;
+  const amount = Number(document.getElementById("paymentAmount").value);
+  const date = document.getElementById("paymentDate").value;
+  const method = document.getElementById("paymentMethod").value;
+  const notes = document.getElementById("paymentNotes").value;
 
-  closePaymentModal();
-  loadStudents();
+  if (amount <= 0) {
+    alert("Please enter a valid amount!");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/student/${studentId}/payment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, date, method, notes })
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Payment failed');
+    }
+
+    alert("Payment recorded successfully!");
+    closePaymentModal();
+    loadStudents();
+  } catch (err) {
+    console.error('❌ Payment error:', err);
+    alert(err.message || "Failed to record payment!");
+  }
+});
+
+/*************************
+ ATTENDANCE FORM
+**************************/
+document.getElementById("attendanceForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  alert("Attendance feature coming soon! (Database not implemented yet)");
+});
+
+/*************************
+ TIMETABLE FORM
+**************************/
+document.getElementById("timetableForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  alert("Timetable feature coming soon! (Database not implemented yet)");
+});
+
+/*************************
+ NOTICE FORM
+**************************/
+document.getElementById("noticeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  alert("Notice feature coming soon! (Database not implemented yet)");
 });
 
 /*************************
  INITIAL LOAD
 **************************/
+console.log('🚀 Teacher Dashboard Loaded');
+console.log('👤 User:', userName);
+console.log('🔑 Role:', userRole);
 loadStudents();

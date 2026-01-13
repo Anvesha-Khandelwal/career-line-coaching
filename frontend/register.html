@@ -504,7 +504,16 @@
                 }
 
                 // Always redirect to login page after registration
-                setTimeout(() => {
+                // Auto-login and redirect to dashboard
+setTimeout(() => {
+    if (data.role === 'student') {
+        window.location.href = 'student-dashboard.html';
+    } else if (data.role === 'teacher') {
+        window.location.href = 'teacher-dashboard.html';
+    } else {
+        window.location.href = 'login.html';
+    }
+}, 2000);(() => {
                     window.location.href = 'login.html';
                 }, 2000);
 
