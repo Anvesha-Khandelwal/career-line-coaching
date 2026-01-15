@@ -23,7 +23,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -48,6 +48,11 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
         }
 
         .dashboard-header {
@@ -169,6 +174,16 @@
             cursor: pointer;
             font-size: 0.9rem;
             margin: 2px;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .btn-edit {
@@ -216,7 +231,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -288,6 +303,167 @@
             opacity: 0.9;
             color: white;
         }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .attendance-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .attendance-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .attendance-row.header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .attendance-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-present {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-absent {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-present.active {
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-absent.active {
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+        }
+
+        .timetable-grid {
+            overflow-x: auto;
+        }
+
+        .timetable-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .timetable-table th,
+        .timetable-table td {
+            border: 2px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .timetable-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .timetable-table td {
+            background: white;
+            min-height: 80px;
+        }
+
+        .period-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .period-card:hover {
+            background: #e9ecef;
+            transform: scale(1.02);
+        }
+
+        .period-card strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .period-card small {
+            color: #666;
+        }
+
+        .delete-period {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+            .student-table {
+                font-size: 0.9rem;
+            }
+
+            .action-btn {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .attendance-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -310,14 +486,16 @@
 
         <div class="dashboard-content">
             <div class="container">
+                <div id="alertContainer"></div>
+
                 <div class="dashboard-tabs">
-                    <button class="tab-btn active" onclick="showTab('fee-management')">💰 Fee Management</button>
+                    <button class="tab-btn active" onclick="showTab('students')">👨‍🎓 Students</button>
                     <button class="tab-btn" onclick="showTab('attendance')">✅ Attendance</button>
                     <button class="tab-btn" onclick="showTab('timetable')">📅 Timetable</button>
-                    <button class="tab-btn" onclick="showTab('notices')">📢 Notices</button>
                 </div>
 
-                <div id="fee-management" class="tab-content active">
+                <!-- STUDENTS TAB -->
+                <div id="students" class="tab-content active">
                     <div class="stats-grid">
                         <div class="stat-card">
                             <h3 id="totalStudents">0</h3>
@@ -338,7 +516,7 @@
                     </div>
 
                     <div class="dashboard-card">
-                        <h3>👨‍🎓 Student Fee Management</h3>
+                        <h3>👨‍🎓 Student Management</h3>
                         
                         <button class="btn-submit" onclick="openAddStudentModal()" style="margin-bottom: 20px;">
                             ➕ Add New Student
@@ -346,63 +524,110 @@
 
                         <input type="text" id="searchStudent" class="search-box" placeholder="🔍 Search by name, mobile, or class..." onkeyup="searchStudents()">
 
-                        <table class="student-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Class</th>
-                                    <th>Total Fee</th>
-                                    <th>Paid</th>
-                                    <th>Pending</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentTableBody">
-                                <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                                        Loading students...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div style="overflow-x: auto;">
+                            <table class="student-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Mobile</th>
+                                        <th>Class</th>
+                                        <th>Board</th>
+                                        <th>Total Fee</th>
+                                        <th>Paid</th>
+                                        <th>Pending</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
+                <!-- ATTENDANCE TAB -->
                 <div id="attendance" class="tab-content">
                     <div class="dashboard-card">
                         <h3>✅ Mark Attendance</h3>
-                        <p style="color: #999;">Feature coming soon...</p>
+                        
+                        <div class="form-row" style="margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label>Select Date</label>
+                                <input type="date" id="attendanceDate" onchange="loadAttendance()">
+                            </div>
+                            <div class="form-group">
+                                <label>Filter by Class</label>
+                                <select id="attendanceClassFilter" onchange="loadAttendance()">
+                                    <option value="">All Classes</option>
+                                    <option value="1">Class 1</option>
+                                    <option value="2">Class 2</option>
+                                    <option value="3">Class 3</option>
+                                    <option value="4">Class 4</option>
+                                    <option value="5">Class 5</option>
+                                    <option value="6">Class 6</option>
+                                    <option value="7">Class 7</option>
+                                    <option value="8">Class 8</option>
+                                    <option value="9">Class 9</option>
+                                    <option value="10">Class 10</option>
+                                    <option value="11">Class 11</option>
+                                    <option value="12">Class 12</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button class="btn-submit" onclick="saveAttendance()" style="margin-bottom: 20px;">💾 Save Attendance</button>
+
+                        <div class="attendance-grid" id="attendanceGrid">
+                            <div class="attendance-row header">
+                                <div>Student Name</div>
+                                <div>Class</div>
+                                <div>Present</div>
+                                <div>Absent</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- TIMETABLE TAB -->
                 <div id="timetable" class="tab-content">
                     <div class="dashboard-card">
-                        <h3>📅 Timetable</h3>
-                        <p style="color: #999;">Feature coming soon...</p>
-                    </div>
-                </div>
+                        <h3>📅 Create Timetable</h3>
+                        
+                        <button class="btn-submit" onclick="openTimetableModal()" style="margin-bottom: 20px;">
+                            ➕ Add Period
+                        </button>
 
-                <div id="notices" class="tab-content">
-                    <div class="dashboard-card">
-                        <h3>📢 Notices</h3>
-                        <p style="color: #999;">Feature coming soon...</p>
+                        <div class="timetable-grid">
+                            <table class="timetable-table" id="timetableTable">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                        <th>Saturday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="timetableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add/Edit Student Modal -->
+    <!-- Student Modal -->
     <div class="modal" id="studentModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Add New Student</h2>
                 <span class="modal-close" onclick="closeModal()">&times;</span>
             </div>
-            <form id="studentForm">
-                <input type="hidden" id="studentId">
+            <form id="studentForm" onsubmit="saveStudent(event)">
+                <input type="hidden" id="editStudentId">
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -410,8 +635,19 @@
                         <input type="text" id="studentName" required>
                     </div>
                     <div class="form-group">
+                        <label>Father's Name *</label>
+                        <input type="text" id="fatherName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label>Mobile Number *</label>
                         <input type="tel" id="mobile" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required>
                     </div>
                 </div>
 
@@ -440,24 +676,36 @@
                             <option value="">Select Board</option>
                             <option value="CBSE">CBSE</option>
                             <option value="RBSE">RBSE</option>
+                            <option value="ICSE">ICSE</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Total Fee (₹) *</label>
-                        <input type="number" id="totalFee" required>
+                        <label>Subject *</label>
+                        <select id="subject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Fee Paid (₹) *</label>
-                        <input type="number" id="feePaid" value="0" required>
+                        <label>Date of Birth</label>
+                        <input type="date" id="dob">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="studentEmailField">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Fee (₹) *</label>
+                        <input type="number" id="totalFee" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Fee Paid (₹) *</label>
+                        <input type="number" id="feePaid" value="0" required min="0">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -465,7 +713,7 @@
                     <textarea id="address" rows="2"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit">Save Student</button>
+                <button type="submit" class="btn-submit">💾 Save Student</button>
             </form>
         </div>
     </div>
@@ -474,10 +722,10 @@
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Record Payment</h2>
+                <h2>💰 Record Payment</h2>
                 <span class="modal-close" onclick="closePaymentModal()">&times;</span>
             </div>
-            <form id="paymentForm">
+            <form id="paymentForm" onsubmit="recordPayment(event)">
                 <input type="hidden" id="paymentStudentId">
                 
                 <div class="form-group">
@@ -492,7 +740,7 @@
 
                 <div class="form-group">
                     <label>Payment Amount (₹) *</label>
-                    <input type="number" id="paymentAmount" required>
+                    <input type="number" id="paymentAmount" required min="1">
                 </div>
 
                 <div class="form-group">
@@ -510,16 +758,538 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="paymentNotes" rows="2"></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">Record Payment</button>
+                <button type="submit" class="btn-submit">💰 Record Payment</button>
             </form>
         </div>
     </div>
 
-    <script src="js/teacher-dashboard.js"></script>
+    <!-- Timetable Modal -->
+    <div class="modal" id="timetableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Period</h2>
+                <span class="modal-close" onclick="closeTimetableModal()">&times;</span>
+            </div>
+            <form id="timetableForm" onsubmit="saveTimetable(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Day *</label>
+                        <select id="ttDay" required>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Time Slot *</label>
+                        <input type="text" id="ttTime" placeholder="e.g., 9:00 AM - 10:00 AM" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Class *</label>
+                        <select id="ttClass" required>
+                            <option value="">Select Class</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="ttSubject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Science">Science</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Teacher Name</label>
+                    <input type="text" id="ttTeacher">
+                </div>
+
+                <button type="submit" class="btn-submit">💾 Add Period</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Database simulation using localStorage
+        let students = [];
+        let attendance = {};
+        let timetable = [];
+        let currentAttendanceData = {};
+
+        // Initialize on page load
+        window.onload = function() {
+            checkAuth();
+            loadStudents();
+            updateStats();
+            document.getElementById('attendanceDate').valueAsDate = new Date();
+            document.getElementById('paymentDate').valueAsDate = new Date();
+            loadAttendance();
+            loadTimetable();
+        };
+
+        // Authentication check
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('userRole');
+            const name = localStorage.getItem('userName');
+            
+            if (!token || role !== 'teacher') {
+                // For demo purposes, set default values
+                localStorage.setItem('token', 'demo-token');
+                localStorage.setItem('userRole', 'teacher');
+                localStorage.setItem('userName', 'Demo Teacher');
+            }
+            
+            document.getElementById('teacherName').textContent = '👨‍🏫 ' + (localStorage.getItem('userName') || 'Teacher');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        }
+
+        // Tab Navigation
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'attendance') {
+                loadAttendance();
+            } else if (tabName === 'timetable') {
+                loadTimetable();
+            }
+        }
+
+        // Alert System
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // ========== STUDENT MANAGEMENT ==========
+
+        function loadStudents() {
+            const saved = localStorage.getItem('students');
+            students = saved ? JSON.parse(saved) : [];
+            renderStudents();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('students', JSON.stringify(students));
+            updateStats();
+        }
+
+        function renderStudents(filteredStudents = null) {
+            const tbody = document.getElementById('studentTableBody');
+            const studentsToShow = filteredStudents || students;
+            
+            if (studentsToShow.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                            ${filteredStudents ? 'No students found.' : 'No students added yet. Click "Add New Student" to get started.'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = studentsToShow.map(student => {
+                const pending = student.totalFee - student.feePaid;
+                let status, statusClass;
+                
+                if (pending <= 0) {
+                    status = 'Paid';
+                    statusClass = 'status-paid';
+                } else if (student.feePaid === 0) {
+                    status = 'Pending';
+                    statusClass = 'status-pending';
+                } else {
+                    status = 'Partial';
+                    statusClass = 'status-partial';
+                }
+                
+                return `
+                    <tr>
+                        <td>${student.name}</td>
+                        <td>${student.mobile}</td>
+                        <td>Class ${student.class}</td>
+                        <td>${student.board}</td>
+                        <td>₹${student.totalFee}</td>
+                        <td>₹${student.feePaid}</td>
+                        <td>₹${pending}</td>
+                        <td><span class="${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="action-btn btn-payment" onclick="openPaymentModal('${student.id}')" ${pending <= 0 ? 'disabled' : ''}>💰</button>
+                            <button class="action-btn btn-edit" onclick="editStudent('${student.id}')">✏️</button>
+                            <button class="action-btn btn-delete" onclick="deleteStudent('${student.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const total = students.length;
+            let collected = 0;
+            let pending = 0;
+            let pendingCount = 0;
+
+            students.forEach(student => {
+                collected += student.feePaid;
+                const studentPending = student.totalFee - student.feePaid;
+                pending += studentPending;
+                if (studentPending > 0) pendingCount++;
+            });
+
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('totalFeeCollected').textContent = '₹' + collected;
+            document.getElementById('totalFeePending').textContent = '₹' + pending;
+            document.getElementById('pendingStudents').textContent = pendingCount;
+        }
+
+        function searchStudents() {
+            const query = document.getElementById('searchStudent').value.toLowerCase();
+            const filtered = students.filter(s => 
+                s.name.toLowerCase().includes(query) ||
+                s.mobile.includes(query) ||
+                s.class.toString().includes(query)
+            );
+            renderStudents(filtered);
+        }
+
+        function openAddStudentModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Student';
+            document.getElementById('studentForm').reset();
+            document.getElementById('editStudentId').value = '';
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+
+        function saveStudent(event) {
+            event.preventDefault();
+            
+            const studentData = {
+                id: document.getElementById('editStudentId').value || Date.now().toString(),
+                name: document.getElementById('studentName').value,
+                fatherName: document.getElementById('fatherName').value,
+                mobile: document.getElementById('mobile').value,
+                email: document.getElementById('email').value,
+                class: document.getElementById('class').value,
+                board: document.getElementById('board').value,
+                subject: document.getElementById('subject').value,
+                dob: document.getElementById('dob').value,
+                totalFee: parseFloat(document.getElementById('totalFee').value),
+                feePaid: parseFloat(document.getElementById('feePaid').value),
+                address: document.getElementById('address').value,
+                createdAt: new Date().toISOString()
+            };
+
+            const existingIndex = students.findIndex(s => s.id === studentData.id);
+            
+            if (existingIndex !== -1) {
+                students[existingIndex] = studentData;
+                showAlert('Student updated successfully!', 'success');
+            } else {
+                students.push(studentData);
+                showAlert('Student added successfully!', 'success');
+            }
+
+            saveToStorage();
+            renderStudents();
+            closeModal();
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Student';
+            document.getElementById('editStudentId').value = student.id;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('fatherName').value = student.fatherName;
+            document.getElementById('mobile').value = student.mobile;
+            document.getElementById('email').value = student.email;
+            document.getElementById('class').value = student.class;
+            document.getElementById('board').value = student.board;
+            document.getElementById('subject').value = student.subject;
+            document.getElementById('dob').value = student.dob || '';
+            document.getElementById('totalFee').value = student.totalFee;
+            document.getElementById('feePaid').value = student.feePaid;
+            document.getElementById('address').value = student.address || '';
+
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function deleteStudent(id) {
+            if (!confirm('Are you sure you want to delete this student?')) return;
+            
+            students = students.filter(s => s.id !== id);
+            saveToStorage();
+            renderStudents();
+            showAlert('Student deleted successfully!', 'success');
+        }
+
+        // ========== PAYMENT MANAGEMENT ==========
+
+        function openPaymentModal(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            const pending = student.totalFee - student.feePaid;
+            
+            document.getElementById('paymentStudentId').value = student.id;
+            document.getElementById('paymentStudentName').value = student.name;
+            document.getElementById('pendingAmount').value = '₹' + pending;
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentAmount').max = pending;
+            
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+        }
+
+        function recordPayment(event) {
+            event.preventDefault();
+            
+            const studentId = document.getElementById('paymentStudentId').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const pending = student.totalFee - student.feePaid;
+            
+            if (amount > pending) {
+                showAlert('Payment amount cannot exceed pending amount!', 'error');
+                return;
+            }
+
+            student.feePaid += amount;
+            
+            saveToStorage();
+            renderStudents();
+            closePaymentModal();
+            showAlert(`Payment of ₹${amount} recorded successfully!`, 'success');
+        }
+
+        // ========== ATTENDANCE MANAGEMENT ==========
+
+        function loadAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            const classFilter = document.getElementById('attendanceClassFilter').value;
+            
+            if (!date) return;
+
+            // Load saved attendance from database
+            const savedAttendance = localStorage.getItem('attendance');
+            attendance = savedAttendance ? JSON.parse(savedAttendance) : {};
+
+            const dateKey = date;
+            currentAttendanceData = attendance[dateKey] || {};
+
+            const grid = document.getElementById('attendanceGrid');
+            
+            let filteredStudents = students;
+            if (classFilter) {
+                filteredStudents = students.filter(s => s.class === classFilter);
+            }
+
+            if (filteredStudents.length === 0) {
+                grid.innerHTML = `
+                    <div class="attendance-row header">
+                        <div>Student Name</div>
+                        <div>Class</div>
+                        <div>Present</div>
+                        <div>Absent</div>
+                    </div>
+                    <div style="text-align: center; padding: 40px; color: #999;">
+                        No students found.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = `
+                <div class="attendance-row header">
+                    <div>Student Name</div>
+                    <div>Class</div>
+                    <div>Present</div>
+                    <div>Absent</div>
+                </div>
+            ` + filteredStudents.map(student => {
+                const status = currentAttendanceData[student.id] || '';
+                
+                return `
+                    <div class="attendance-row">
+                        <div>${student.name}</div>
+                        <div>Class ${student.class}</div>
+                        <div>
+                            <button class="attendance-btn btn-present ${status === 'present' ? 'active' : ''}" 
+                                    onclick="markAttendance('${student.id}', 'present')">
+                                ✓ Present
+                            </button>
+                        </div>
+                        <div>
+                            <button class="attendance-btn btn-absent ${status === 'absent' ? 'active' : ''}" 
+                                    onclick="markAttendance('${student.id}', 'absent')">
+                                ✗ Absent
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markAttendance(studentId, status) {
+            currentAttendanceData[studentId] = status;
+        }
+
+        function saveAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            
+            if (!date) {
+                showAlert('Please select a date!', 'error');
+                return;
+            }
+
+            attendance[date] = currentAttendanceData;
+            localStorage.setItem('attendance', JSON.stringify(attendance));
+            
+            showAlert('Attendance saved successfully!', 'success');
+        }
+
+        // ========== TIMETABLE MANAGEMENT ==========
+
+        function loadTimetable() {
+            const saved = localStorage.getItem('timetable');
+            timetable = saved ? JSON.parse(saved) : [];
+            renderTimetable();
+        }
+
+        function renderTimetable() {
+            const tbody = document.getElementById('timetableBody');
+            
+            // Get unique time slots
+            const timeSlots = [...new Set(timetable.map(t => t.time))].sort();
+            
+            if (timeSlots.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            No timetable created yet. Click "Add Period" to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            tbody.innerHTML = timeSlots.map(time => {
+                return `
+                    <tr>
+                        <td><strong>${time}</strong></td>
+                        ${days.map(day => {
+                            const periods = timetable.filter(t => t.day === day && t.time === time);
+                            return `
+                                <td>
+                                    ${periods.map(period => `
+                                        <div class="period-card">
+                                            <button class="delete-period" onclick="deletePeriod('${period.id}')">×</button>
+                                            <strong>Class ${period.class} - ${period.subject}</strong>
+                                            <small>${period.teacher || 'No teacher assigned'}</small>
+                                        </div>
+                                    `).join('')}
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openTimetableModal() {
+            document.getElementById('timetableForm').reset();
+            document.getElementById('timetableModal').classList.add('active');
+        }
+
+        function closeTimetableModal() {
+            document.getElementById('timetableModal').classList.remove('active');
+        }
+
+        function saveTimetable(event) {
+            event.preventDefault();
+            
+            const periodData = {
+                id: Date.now().toString(),
+                day: document.getElementById('ttDay').value,
+                time: document.getElementById('ttTime').value,
+                class: document.getElementById('ttClass').value,
+                subject: document.getElementById('ttSubject').value,
+                teacher: document.getElementById('ttTeacher').value || 'Not assigned'
+            };
+
+            timetable.push(periodData);
+            localStorage.setItem('timetable', JSON.stringify(timetable));
+            
+            renderTimetable();
+            closeTimetableModal();
+            showAlert('Period added successfully!', 'success');
+        }
+
+        function deletePeriod(id) {
+            if (!confirm('Are you sure you want to delete this period?')) return;
+            
+            timetable = timetable.filter(t => t.id !== id);
+            localStorage.setItem('timetable', JSON.stringify(timetable));
+            renderTimetable();
+            showAlert('Period deleted successfully!', 'success');
+        }
+    </script>
 </body>
 </html>
