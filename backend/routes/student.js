@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
-// Temporary in-memory storage for students (replaces database for testing)
-let students = [];
-let nextId = 1;
+const Student = require('../models/student');
 
 // Get all students
 router.get('/', async (req, res) => {
     try {
         console.log('📋 Fetching all students');
+        const students = await Student.find().sort({ createdAt: -1 });
         console.log(`Total students: ${students.length}`);
         res.json(students);
     } catch (error) {
@@ -20,13 +18,16 @@ router.get('/', async (req, res) => {
 // Get single student by ID
 router.get('/:id', async (req, res) => {
     try {
-        const student = students.find(s => s._id === req.params.id);
+        const student = await Student.findById(req.params.id);
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
         res.json(student);
     } catch (error) {
         console.error('❌ Error fetching student:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid student ID' });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -47,8 +48,7 @@ router.post('/', async (req, res) => {
         }
 
         // Create new student
-        const newStudent = {
-            _id: String(nextId++),
+        const newStudent = new Student({
             name: name.trim(),
             mobile: mobile.trim(),
             class: studentClass,
@@ -56,18 +56,22 @@ router.post('/', async (req, res) => {
             totalFee: Number(totalFee),
             feePaid: Number(feePaid) || 0,
             email: email ? email.trim() : '',
-            address: address ? address.trim() : '',
-            createdAt: new Date(),
-            payments: []
-        };
+            address: address ? address.trim() : ''
+        });
 
-        students.push(newStudent);
+        await newStudent.save();
         console.log('✅ Student added:', newStudent.name);
-        console.log(`📊 Total students: ${students.length}`);
+        console.log(`📊 Student ID: ${newStudent._id}`);
 
         res.status(201).json(newStudent);
     } catch (error) {
         console.error('❌ Error adding student:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Validation error', 
+                errors: Object.values(error.errors).map(e => e.message) 
+            });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -77,31 +81,37 @@ router.put('/:id', async (req, res) => {
     try {
         console.log('✏️ Updating student:', req.params.id);
         
-        const studentIndex = students.findIndex(s => s._id === req.params.id);
-        if (studentIndex === -1) {
+        const student = await Student.findById(req.params.id);
+        if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
         const { name, mobile, class: studentClass, board, totalFee, feePaid, email, address } = req.body;
 
         // Update student data
-        students[studentIndex] = {
-            ...students[studentIndex],
-            name: name || students[studentIndex].name,
-            mobile: mobile || students[studentIndex].mobile,
-            class: studentClass || students[studentIndex].class,
-            board: board || students[studentIndex].board,
-            totalFee: totalFee !== undefined ? Number(totalFee) : students[studentIndex].totalFee,
-            feePaid: feePaid !== undefined ? Number(feePaid) : students[studentIndex].feePaid,
-            email: email !== undefined ? email : students[studentIndex].email,
-            address: address !== undefined ? address : students[studentIndex].address,
-            updatedAt: new Date()
-        };
+        if (name) student.name = name.trim();
+        if (mobile) student.mobile = mobile.trim();
+        if (studentClass) student.class = studentClass;
+        if (board) student.board = board;
+        if (totalFee !== undefined) student.totalFee = Number(totalFee);
+        if (feePaid !== undefined) student.feePaid = Number(feePaid);
+        if (email !== undefined) student.email = email.trim();
+        if (address !== undefined) student.address = address.trim();
 
-        console.log('✅ Student updated:', students[studentIndex].name);
-        res.json(students[studentIndex]);
+        await student.save();
+        console.log('✅ Student updated:', student.name);
+        res.json(student);
     } catch (error) {
         console.error('❌ Error updating student:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid student ID' });
+        }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: 'Validation error', 
+                errors: Object.values(error.errors).map(e => e.message) 
+            });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -111,18 +121,18 @@ router.delete('/:id', async (req, res) => {
     try {
         console.log('🗑️ Deleting student:', req.params.id);
         
-        const studentIndex = students.findIndex(s => s._id === req.params.id);
-        if (studentIndex === -1) {
+        const student = await Student.findByIdAndDelete(req.params.id);
+        if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        const deletedStudent = students.splice(studentIndex, 1)[0];
-        console.log('✅ Student deleted:', deletedStudent.name);
-        console.log(`📊 Remaining students: ${students.length}`);
-
-        res.json({ message: 'Student deleted successfully', student: deletedStudent });
+        console.log('✅ Student deleted:', student.name);
+        res.json({ message: 'Student deleted successfully', student });
     } catch (error) {
         console.error('❌ Error deleting student:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid student ID' });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -132,7 +142,7 @@ router.post('/:id/payment', async (req, res) => {
     try {
         console.log('💰 Recording payment for student:', req.params.id);
         
-        const student = students.find(s => s._id === req.params.id);
+        const student = await Student.findById(req.params.id);
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
@@ -152,18 +162,14 @@ router.post('/:id/payment', async (req, res) => {
 
         // Create payment record
         const payment = {
-            id: String(Date.now()),
             amount: Number(amount),
-            date: date || new Date().toISOString(),
-            method: method || 'Cash',
-            notes: notes || '',
-            recordedAt: new Date()
+            paymentDate: date ? new Date(date) : new Date(),
+            paymentMethod: method || 'Cash',
+            notes: notes || ''
         };
 
-        // Update student
-        student.feePaid += Number(amount);
-        student.payments = student.payments || [];
-        student.payments.push(payment);
+        // Use the model method to add payment
+        await student.addPayment(payment);
 
         console.log(`✅ Payment recorded: ₹${amount} for ${student.name}`);
         console.log(`   New feePaid: ₹${student.feePaid} / ₹${student.totalFee}`);
@@ -175,6 +181,9 @@ router.post('/:id/payment', async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Error recording payment:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid student ID' });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -182,17 +191,20 @@ router.post('/:id/payment', async (req, res) => {
 // Get payment history for a student
 router.get('/:id/payments', async (req, res) => {
     try {
-        const student = students.find(s => s._id === req.params.id);
+        const student = await Student.findById(req.params.id);
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
         res.json({
             studentName: student.name,
-            payments: student.payments || []
+            payments: student.paymentHistory || []
         });
     } catch (error) {
         console.error('❌ Error fetching payments:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid student ID' });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });

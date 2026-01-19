@@ -1,19 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const User = require('../models/User');
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'career_line_secret_key_2024';
-
-// Temporary in-memory storage (replaces database for testing)
-const users = [];
 
 // Test route
 router.get('/test', (req, res) => {
     res.json({ message: 'Auth routes are working!' });
 });
 
-// Register endpoint - WITHOUT DATABASE
+// Register endpoint - WITH DATABASE
 router.post('/register', async (req, res) => {
     try {
         console.log('📝 Registration request received');
@@ -50,8 +49,8 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        // Check if user already exists in memory
-        const existingUser = users.find(u => u.email === email && u.role === role);
+        // Check if user already exists in database
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim(), role });
         if (existingUser) {
             console.log('❌ User already exists:', email, role);
             return res.status(400).json({ 
@@ -59,28 +58,29 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // Create user in memory (no database)
-        const newUser = {
-            id: Date.now().toString(),
+        // Hash password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create user in database
+        const newUser = new User({
             name: name.trim(),
             email: email.toLowerCase().trim(),
-            password: password, // In real app, this should be hashed
-            role,
-            createdAt: new Date()
-        };
+            password: hashedPassword,
+            role
+        });
 
-        users.push(newUser);
-        console.log('✅ User registered successfully (in memory):', { 
-            id: newUser.id, 
+        await newUser.save();
+        console.log('✅ User registered successfully:', { 
+            id: newUser._id, 
             email: newUser.email, 
             role: newUser.role,
             name: newUser.name
         });
-        console.log('📊 Total users in memory:', users.length);
 
         // Generate token
         const token = jwt.sign(
-            { id: newUser.id, role: newUser.role, email: newUser.email },
+            { id: newUser._id.toString(), role: newUser.role, email: newUser.email },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -97,6 +97,14 @@ router.post('/register', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Registration error:', error);
+        
+        // Handle duplicate key error (MongoDB unique index)
+        if (error.code === 11000) {
+            return res.status(400).json({ 
+                message: 'An account with this email and role already exists. Please login or use a different email.'
+            });
+        }
+        
         res.status(500).json({ 
             message: 'Server error during registration',
             error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
@@ -104,7 +112,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login endpoint - WITHOUT DATABASE
+// Login endpoint - WITH DATABASE
 router.post('/login', async (req, res) => {
     try {
         console.log('🔐 Login request received');
@@ -129,17 +137,16 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Find user in memory
-        console.log('🔍 Looking for user in memory:', email, role);
-        console.log('📊 Current users in memory:', users.length);
+        // Find user in database
+        console.log('🔍 Looking for user in database:', email, role);
         
-        const user = users.find(u => 
-            u.email === email.toLowerCase().trim() && 
-            u.role === role
-        );
+        const user = await User.findOne({ 
+            email: email.toLowerCase().trim(), 
+            role 
+        });
         
         if (!user) {
-            console.log('❌ User not found in memory');
+            console.log('❌ User not found');
             return res.status(401).json({ 
                 message: 'Invalid credentials. Please check your email, password, and role.'
             });
@@ -147,8 +154,10 @@ router.post('/login', async (req, res) => {
 
         console.log('👤 User found:', user.email);
 
-        // Check password (in real app, use bcrypt.compare)
-        if (user.password !== password) {
+        // Check password using bcrypt
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        if (!isPasswordValid) {
             console.log('❌ Invalid password');
             return res.status(401).json({ 
                 message: 'Invalid credentials. Please check your email and password.'
@@ -159,7 +168,7 @@ router.post('/login', async (req, res) => {
 
         // Generate token
         const token = jwt.sign(
-            { id: user.id, role: user.role, email: user.email },
+            { id: user._id.toString(), role: user.role, email: user.email },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -193,7 +202,7 @@ router.get('/verify', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, JWT_SECRET);
-        const user = users.find(u => u.id === decoded.id);
+        const user = await User.findById(decoded.id);
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -202,7 +211,7 @@ router.get('/verify', async (req, res) => {
         res.json({ 
             valid: true, 
             user: {
-                id: user.id,
+                id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role

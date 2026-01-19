@@ -5,13 +5,20 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS Configuration - THIS IS CRITICAL
-app.use(cors({
-    origin: '*', // Allow all origins in development
+// CORS Configuration - Environment-aware
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? false : '*'),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
-}));
+};
+
+// If CORS_ORIGIN is set and contains comma, split it
+if (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.includes(',')) {
+    corsOptions.origin = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+}
+
+app.use(cors(corsOptions));
 
 // Body parser middleware
 app.use(express.json());
@@ -23,24 +30,23 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB Connection - DISABLED FOR TESTING
-console.log('⚠️ MongoDB temporarily disabled for testing');
-console.log('✅ Server will work without database - DATA WILL NOT BE SAVED');
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/careerline';
 
-// Uncomment this when MongoDB is fixed:
-// const MONGODB_URI = process.env.MONGODB_URI || 'your_mongodb_atlas_uri_here';
-// mongoose.connect(MONGODB_URI, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-// })
-//     .then(() => {
-//         console.log('✅ MongoDB Connected Successfully');
-//         console.log('📊 Database:', mongoose.connection.name);
-//     })
-//     .catch(err => {
-//         console.log('❌ MongoDB Connection Error:', err.message);
-//         console.log('💡 Tip: Check your MongoDB Atlas connection string in .env file');
-//     });
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => {
+        console.log('✅ MongoDB Connected Successfully');
+        console.log('📊 Database:', mongoose.connection.name);
+    })
+    .catch(err => {
+        console.log('❌ MongoDB Connection Error:', err.message);
+        console.log('💡 Tip: Check your MongoDB connection string in .env file');
+        console.log('💡 Using fallback URI:', MONGODB_URI);
+        // Server will continue to run but database operations will fail
+    });
 
 // Test Route
 app.get('/', (req, res) => {
@@ -116,6 +122,6 @@ app.listen(PORT, () => {
     console.log('📡 API URL: http://localhost:' + PORT);
     console.log('🌐 Frontend can connect from any origin');
     console.log('✅ Server is ready to accept requests');
-    console.log('⚠️ WARNING: Database is disabled - data will not be saved!');
+    console.log('✅ Database integration enabled');
     console.log('='.repeat(50));
 });
