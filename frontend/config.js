@@ -1,5 +1,15 @@
-// API Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Configuration - Environment-aware
+const getApiBaseUrl = () => {
+    // Check if we're in production (hosted on a domain, not localhost)
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        // Production: Use relative URL or set your production API URL
+        return window.location.origin + '/api';
+    }
+    // Development: Use localhost
+    return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
