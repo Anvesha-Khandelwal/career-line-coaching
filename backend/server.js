@@ -33,20 +33,14 @@ app.use((req, res, next) => {
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/careerline';
 
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => {
-        console.log('✅ MongoDB Connected Successfully');
-        console.log('📊 Database:', mongoose.connection.name);
-    })
-    .catch(err => {
-        console.log('❌ MongoDB Connection Error:', err.message);
-        console.log('💡 Tip: Check your MongoDB connection string in .env file');
-        console.log('💡 Using fallback URI:', MONGODB_URI);
-        // Server will continue to run but database operations will fail
-    });
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('✅ MongoDB Connected Successfully');
+    console.log('📊 Database:', mongoose.connection.name);
+  })
+  .catch(err => {
+    console.error('❌ MongoDB Connection Error:', err);
+  });
 
 // Test Route
 app.get('/', (req, res) => {
