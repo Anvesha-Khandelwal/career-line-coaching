@@ -8,7 +8,7 @@
     <style>
         .contact-container {
             padding: 100px 20px;
-            background: linear-gradient(135deg, #E0EEF5 0%, #D5E3EE 100%);
+            background: var(--light-bg);
             min-height: 100vh;
         }
         .contact-content {
@@ -25,7 +25,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .contact-info h2 {
-            color: #003D5C;
+            color: var(--text-dark);
             margin-bottom: 30px;
         }
         .info-item {
@@ -46,11 +46,11 @@
             min-width: 50px;
         }
         .info-text h3 {
-            color: #003D5C;
+            color: var(--text-dark);
             margin-bottom: 5px;
         }
         .info-text p {
-            color: #00A3E0;
+            color: var(--text-gray);
             margin: 0;
         }
         .contact-form {
@@ -60,7 +60,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .contact-form h2 {
-            color: #003D5C;
+            color: var(--text-dark);
             margin-bottom: 30px;
         }
         .form-group {
@@ -76,22 +76,22 @@
         .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #B8D4E0;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.3s;
-            background: #E0EEF5;
+            background: var(--light-bg);
         }
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #00A3E0;
+            border-color: var(--primary-blue);
             background: #FFFFFF;
         }
         .submit-btn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #00A3E0, #FFA500);
+            background: var(--primary-blue);
             color: white;
             border: none;
             border-radius: 8px;
@@ -112,7 +112,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .map-container h2 {
-            color: #003D5C;
+            color: var(--text-dark);
             margin-bottom: 20px;
         }
         .map-container iframe {

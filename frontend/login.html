@@ -42,20 +42,20 @@
         }
 
         .logo h1 {
-            color: #0087B6;
+            color: var(--primary-blue);
             font-size: 2rem;
             font-weight: 700;
         }
 
         .logo p {
-            color: #0087B6;
+            color: var(--primary-blue);
             font-size: 0.95rem;
             margin-top: 5px;
         }
 
         .divider {
             height: 3px;
-            background: linear-gradient(90deg, #0087B6, #009FCC);
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-color));
             border-radius: 10px;
             margin: 25px 0;
         }
@@ -98,8 +98,9 @@
 
         .role-btn {
             padding: 15px;
-            border: 2px solid #B8D4E0;
-            background: #D5E3EE;
+            border: none;
+            background: var(--primary-blue);
+            color: white;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -112,16 +113,16 @@
         }
 
         .role-btn:hover {
-            border-color: #0087B6;
-            background: #B8D4E0;
+            background: var(--secondary-color);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 168, 232, 0.3);
         }
 
         .role-btn.active {
-            background: linear-gradient(135deg, #0087B6, #009FCC);
+            background: var(--primary-blue);
             color: white;
             border-color: transparent;
-            box-shadow: 0 5px 15px rgba(0, 135, 182, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 168, 232, 0.4);
         }
 
         .form-group {
@@ -139,24 +140,24 @@
         input {
             width: 100%;
             padding: 14px 18px;
-            border: 2px solid #B8D4E0;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            background: #D5E3EE;
+            background: var(--light-bg);
         }
 
         input:focus {
             outline: none;
-            border-color: #0087B6;
+            border-color: var(--primary-blue);
             background: white;
-            box-shadow: 0 0 0 3px rgba(0, 135, 182, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
         }
 
         .btn-submit {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #0087B6, #009FCC);
+            background: var(--primary-blue);
             color: white;
             border: none;
             border-radius: 10px;
@@ -165,12 +166,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(0, 135, 182, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 168, 232, 0.3);
         }
 
         .btn-submit:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 135, 182, 0.4);
+            box-shadow: 0 8px 20px rgba(0, 168, 232, 0.4);
         }
 
         .btn-submit:disabled {
@@ -189,8 +190,8 @@
         }
 
         .spinner {
-            border: 3px solid #E0EEF5;
-            border-top: 3px solid #00A3E0;
+            border: 3px solid var(--light-bg);
+            border-top: 3px solid var(--primary-blue);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -207,18 +208,18 @@
             text-align: center;
             margin-top: 25px;
             padding-top: 20px;
-            border-top: 1px solid #B8D4E0;
+            border-top: 1px solid var(--border-color);
         }
 
         .links a {
-            color: #00A3E0;
+            color: var(--primary-blue);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s;
         }
 
         .links a:hover {
-            color: #003D5C;
+            color: var(--primary-dark);
             text-decoration: underline;
         }
 
