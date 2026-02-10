@@ -295,10 +295,12 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
                 
-                const response = await fetch('http://localhost:5000/', {
-                    method: 'GET',
-                    signal: controller.signal
-                });
+               const API_URL = 'https://career-line-coaching-1.onrender.com'; // Replace with YOUR actual Render URL
+
+               const response = await fetch(`${API_URL}/`, {
+                method: 'GET',
+                signal: controller.signal
+});
                 
                 clearTimeout(timeoutId);
                 
