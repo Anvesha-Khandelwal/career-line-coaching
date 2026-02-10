@@ -1,17 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
 
-const app = express();
-
-// CORS Configuration - Environment-aware
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? false : '*'),
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+  origin: [
+    'https://career-line-coaching-awr3.vercel.app/',          // Your Vercel URL
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'http://127.0.0.1:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
+
+app.use(cors(corsOptions));
 
 // If CORS_ORIGIN is set and contains comma, split it
 if (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.includes(',')) {
