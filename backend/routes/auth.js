@@ -3,13 +3,16 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// In-memory user storage (will be replaced by MongoDB later)
+// In-memory user storage (temporary - will use MongoDB later)
 const users = [];
 
-// Register route
+// @route   POST /api/auth/register
+// @desc    Register new user
+// @access  Public
 router.post('/register', async (req, res) => {
     try {
-        console.log('📝 Registration request received:', req.body);
+        console.log('📝 Registration request received');
+        console.log('📦 Body:', req.body);
         
         const { name, email, password, role } = req.body;
 
@@ -17,7 +20,7 @@ router.post('/register', async (req, res) => {
         if (!name || !email || !password || !role) {
             console.log('❌ Missing fields');
             return res.status(400).json({ 
-                message: 'All fields are required',
+                message: 'All fields are required (name, email, password, role)',
                 success: false 
             });
         }
@@ -25,7 +28,7 @@ router.post('/register', async (req, res) => {
         // Validate role
         if (!['student', 'teacher'].includes(role)) {
             return res.status(400).json({ 
-                message: 'Invalid role. Must be student or teacher',
+                message: 'Invalid role. Must be "student" or "teacher"',
                 success: false 
             });
         }
@@ -50,7 +53,7 @@ router.post('/register', async (req, res) => {
         // Check if user already exists
         const existingUser = users.find(u => u.email === email && u.role === role);
         if (existingUser) {
-            console.log('❌ User already exists');
+            console.log('❌ User already exists:', email, role);
             return res.status(400).json({ 
                 message: 'User already exists with this email and role',
                 success: false 
@@ -58,9 +61,10 @@ router.post('/register', async (req, res) => {
         }
 
         // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create user
+        // Create new user
         const newUser = {
             id: Date.now().toString(),
             name,
@@ -74,6 +78,7 @@ router.post('/register', async (req, res) => {
         
         console.log('✅ User registered successfully');
         console.log('📊 Total users:', users.length);
+        console.log('👤 New user:', { id: newUser.id, email: newUser.email, role: newUser.role });
 
         // Generate JWT token
         const token = jwt.sign(
@@ -105,17 +110,20 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login route
+// @route   POST /api/auth/login
+// @desc    Login user
+// @access  Public
 router.post('/login', async (req, res) => {
     try {
-        console.log('🔐 Login request received:', { email: req.body.email, role: req.body.role });
+        console.log('🔐 Login request received');
+        console.log('📦 Email:', req.body.email, 'Role:', req.body.role);
         
         const { email, password, role } = req.body;
 
         // Validation
         if (!email || !password || !role) {
             return res.status(400).json({ 
-                message: 'All fields are required',
+                message: 'All fields are required (email, password, role)',
                 success: false 
             });
         }
@@ -172,7 +180,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Get all users (for debugging - remove in production)
+// @route   GET /api/auth/users
+// @desc    Get all users (for debugging)
+// @access  Public (should be protected in production)
 router.get('/users', (req, res) => {
     const safeUsers = users.map(u => ({
         id: u.id,
@@ -182,6 +192,8 @@ router.get('/users', (req, res) => {
         createdAt: u.createdAt
     }));
     
+    console.log('📋 Users list requested. Total:', users.length);
+    
     res.json({ 
         users: safeUsers, 
         count: users.length,
@@ -189,36 +201,34 @@ router.get('/users', (req, res) => {
     });
 });
 
-// Verify token middleware (for protected routes)
-const verifyToken = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-        return res.status(401).json({ 
-            message: 'No token provided',
-            success: false 
-        });
-    }
-
+// @route   POST /api/auth/verify
+// @desc    Verify JWT token
+// @access  Private
+router.post('/verify', (req, res) => {
     try {
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({ 
+                message: 'No token provided',
+                success: false 
+            });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'career_line_secret_key_2024');
-        req.user = decoded;
-        next();
+        
+        res.json({
+            message: 'Token is valid',
+            success: true,
+            user: decoded
+        });
+
     } catch (error) {
-        return res.status(401).json({ 
-            message: 'Invalid token',
+        res.status(401).json({ 
+            message: 'Invalid or expired token',
             success: false 
         });
     }
-};
-
-// Protected route example
-router.get('/verify', verifyToken, (req, res) => {
-    res.json({
-        message: 'Token is valid',
-        success: true,
-        user: req.user
-    });
 });
 
 module.exports = router;
