@@ -1,228 +1,224 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'career_line_secret_key_2024';
+// In-memory user storage (will be replaced by MongoDB later)
+const users = [];
 
-// Test route
-router.get('/test', (req, res) => {
-    res.json({ message: 'Auth routes are working!' });
-});
-
-// Register endpoint - WITH DATABASE
+// Register route
 router.post('/register', async (req, res) => {
     try {
-        console.log('📝 Registration request received');
-        console.log('Request body:', req.body);
+        console.log('📝 Registration request received:', req.body);
         
         const { name, email, password, role } = req.body;
 
         // Validation
         if (!name || !email || !password || !role) {
-            console.log('❌ Missing required fields');
+            console.log('❌ Missing fields');
             return res.status(400).json({ 
                 message: 'All fields are required',
-                received: { name: !!name, email: !!email, password: !!password, role: !!role }
+                success: false 
             });
         }
 
         // Validate role
         if (!['student', 'teacher'].includes(role)) {
-            console.log('❌ Invalid role:', role);
             return res.status(400).json({ 
                 message: 'Invalid role. Must be student or teacher',
-                receivedRole: role
+                success: false 
             });
         }
 
-        // Validate email format
+        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: 'Invalid email format' });
-        }
-
-        // Validate password length
-        if (password.length < 6) {
-            return res.status(400).json({ message: 'Password must be at least 6 characters' });
-        }
-
-        // Check if user already exists in database
-        const existingUser = await User.findOne({ email: email.toLowerCase().trim(), role });
-        if (existingUser) {
-            console.log('❌ User already exists:', email, role);
             return res.status(400).json({ 
-                message: `A ${role} account already exists with this email. Please login or use a different email.`
+                message: 'Invalid email format',
+                success: false 
+            });
+        }
+
+        // Password validation
+        if (password.length < 6) {
+            return res.status(400).json({ 
+                message: 'Password must be at least 6 characters',
+                success: false 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = users.find(u => u.email === email && u.role === role);
+        if (existingUser) {
+            console.log('❌ User already exists');
+            return res.status(400).json({ 
+                message: 'User already exists with this email and role',
+                success: false 
             });
         }
 
         // Hash password
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user in database
-        const newUser = new User({
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
+        // Create user
+        const newUser = {
+            id: Date.now().toString(),
+            name,
+            email,
             password: hashedPassword,
-            role
-        });
+            role,
+            createdAt: new Date().toISOString()
+        };
 
-        await newUser.save();
-        console.log('✅ User registered successfully:', { 
-            id: newUser._id, 
-            email: newUser.email, 
-            role: newUser.role,
-            name: newUser.name
-        });
+        users.push(newUser);
+        
+        console.log('✅ User registered successfully');
+        console.log('📊 Total users:', users.length);
 
-        // Generate token
+        // Generate JWT token
         const token = jwt.sign(
-            { id: newUser._id.toString(), role: newUser.role, email: newUser.email },
-            JWT_SECRET,
+            { 
+                id: newUser.id, 
+                email: newUser.email, 
+                role: newUser.role 
+            },
+            process.env.JWT_SECRET || 'career_line_secret_key_2024',
             { expiresIn: '7d' }
         );
 
-        console.log('🎟️ Token generated');
-
         res.status(201).json({
             message: 'Registration successful',
+            success: true,
             token,
             name: newUser.name,
-            role: newUser.role,
-            email: newUser.email
+            email: newUser.email,
+            role: newUser.role
         });
 
     } catch (error) {
         console.error('❌ Registration error:', error);
-        
-        // Handle duplicate key error (MongoDB unique index)
-        if (error.code === 11000) {
-            return res.status(400).json({ 
-                message: 'An account with this email and role already exists. Please login or use a different email.'
-            });
-        }
-        
         res.status(500).json({ 
             message: 'Server error during registration',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            error: error.message,
+            success: false 
         });
     }
 });
 
-// Login endpoint - WITH DATABASE
+// Login route
 router.post('/login', async (req, res) => {
     try {
-        console.log('🔐 Login request received');
-        console.log('Request body:', { email: req.body.email, role: req.body.role });
+        console.log('🔐 Login request received:', { email: req.body.email, role: req.body.role });
         
         const { email, password, role } = req.body;
 
         // Validation
         if (!email || !password || !role) {
-            console.log('❌ Missing required fields');
             return res.status(400).json({ 
                 message: 'All fields are required',
-                received: { email: !!email, password: !!password, role: !!role }
+                success: false 
             });
         }
 
-        // Validate role
-        if (!['student', 'teacher'].includes(role)) {
-            console.log('❌ Invalid role:', role);
-            return res.status(400).json({ 
-                message: 'Invalid role. Must be student or teacher'
-            });
-        }
-
-        // Find user in database
-        console.log('🔍 Looking for user in database:', email, role);
-        
-        const user = await User.findOne({ 
-            email: email.toLowerCase().trim(), 
-            role 
-        });
-        
+        // Find user
+        const user = users.find(u => u.email === email && u.role === role);
         if (!user) {
             console.log('❌ User not found');
             return res.status(401).json({ 
-                message: 'Invalid credentials. Please check your email, password, and role.'
+                message: 'Invalid email or password',
+                success: false 
             });
         }
 
-        console.log('👤 User found:', user.email);
-
-        // Check password using bcrypt
+        // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        
         if (!isPasswordValid) {
             console.log('❌ Invalid password');
             return res.status(401).json({ 
-                message: 'Invalid credentials. Please check your email and password.'
+                message: 'Invalid email or password',
+                success: false 
             });
         }
 
-        console.log('✅ Login successful:', user.email);
+        console.log('✅ Login successful');
 
-        // Generate token
+        // Generate JWT token
         const token = jwt.sign(
-            { id: user._id.toString(), role: user.role, email: user.email },
-            JWT_SECRET,
+            { 
+                id: user.id, 
+                email: user.email, 
+                role: user.role 
+            },
+            process.env.JWT_SECRET || 'career_line_secret_key_2024',
             { expiresIn: '7d' }
         );
 
-        console.log('🎟️ Token generated');
-
-        res.json({
+        res.status(200).json({
             message: 'Login successful',
+            success: true,
             token,
             name: user.name,
-            role: user.role,
-            email: user.email
+            email: user.email,
+            role: user.role
         });
 
     } catch (error) {
         console.error('❌ Login error:', error);
         res.status(500).json({ 
             message: 'Server error during login',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            error: error.message,
+            success: false 
         });
     }
 });
 
-// Verify token endpoint (optional but useful)
-router.get('/verify', async (req, res) => {
-    try {
-        const token = req.headers.authorization?.split(' ')[1];
-        
-        if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
-        }
+// Get all users (for debugging - remove in production)
+router.get('/users', (req, res) => {
+    const safeUsers = users.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        createdAt: u.createdAt
+    }));
+    
+    res.json({ 
+        users: safeUsers, 
+        count: users.length,
+        timestamp: new Date().toISOString()
+    });
+});
 
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.id);
-        
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.json({ 
-            valid: true, 
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        res.status(401).json({ 
-            valid: false, 
-            message: 'Invalid token' 
+// Verify token middleware (for protected routes)
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ 
+            message: 'No token provided',
+            success: false 
         });
     }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'career_line_secret_key_2024');
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ 
+            message: 'Invalid token',
+            success: false 
+        });
+    }
+};
+
+// Protected route example
+router.get('/verify', verifyToken, (req, res) => {
+    res.json({
+        message: 'Token is valid',
+        success: true,
+        user: req.user
+    });
 });
 
 module.exports = router;
