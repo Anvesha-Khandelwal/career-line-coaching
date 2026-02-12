@@ -318,46 +318,8 @@
     </div>
 
     <script src="config.js"></script>
-    <script>
-       let selectedRole = 'student';
-
-// Test server connection on page load
-async function testServerConnection() {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const API_URL = API_BASE_URL.replace('/api', '');
-        const response = await fetch(`${API_URL}/`, {
-            method: 'GET',
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-            console.log('✅ Server is running');
-            return true;
-        }
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.warn('⚠️ Server connection timeout');
-        } else {
-            console.warn('⚠️ Server connection test failed:', error.message);
-        }
-        return false;
-    }
-    return false;
-}
-
-// Check server on page load
-window.addEventListener('DOMContentLoaded', () => {
-    testServerConnection().then(isConnected => {
-        if (!isConnected) {
-            console.warn('Backend server may not be running. Make sure to start it at http://localhost:5000');
-        }
-    });
-});
+   <script>
+let selectedRole = 'student';
 
 // Role selection
 document.getElementById('studentBtn').addEventListener('click', () => {
@@ -391,9 +353,7 @@ document.getElementById('password').addEventListener('input', (e) => {
 function showError(message) {
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
-    
     if (successDiv) successDiv.classList.remove('show');
-    
     if (errorDiv) {
         errorDiv.textContent = '⚠️ ' + message;
         errorDiv.classList.add('show');
@@ -404,9 +364,7 @@ function showError(message) {
 function showSuccess(message) {
     const successDiv = document.getElementById('successMessage');
     const errorDiv = document.getElementById('errorMessage');
-    
     if (errorDiv) errorDiv.classList.remove('show');
-    
     if (successDiv) {
         successDiv.textContent = '✅ ' + message;
         successDiv.classList.add('show');
@@ -427,7 +385,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    // Validation
     if (!name || !email || !password || !confirmPassword) {
         showError('Please fill in all fields');
         return;
@@ -452,9 +409,9 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     showLoading(true);
 
     try {
-        console.log('📤 Sending registration to:', `${API_BASE_URL}/auth/register`);
+        console.log('📤 Registering to:', window.API_BASE_URL + '/auth/register');
         
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await fetch(window.API_BASE_URL + '/auth/register', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -463,19 +420,17 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
             body: JSON.stringify({ name, email, password, role: selectedRole })
         });
 
-        console.log('📥 Response status:', response.status);
-        
+        console.log('📥 Status:', response.status);
         const data = await response.json();
-        console.log('📥 Response data:', data);
+        console.log('📥 Data:', data);
 
         if (!response.ok) {
-            throw new Error(data.message || `Registration failed: ${response.status}`);
+            throw new Error(data.message || 'Registration failed');
         }
 
         showLoading(false);
-        showSuccess(`Welcome ${data.name}! Account created successfully. Redirecting...`);
+        showSuccess(`Welcome ${data.name}! Redirecting...`);
 
-        // Store token
         if (data.token) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('userRole', data.role);
@@ -483,32 +438,30 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
             localStorage.setItem('userEmail', email);
         }
 
-        // Redirect to appropriate dashboard
         setTimeout(() => {
             if (data.role === 'student') {
                 window.location.href = 'student-dashboard.html';
-            } else if (data.role === 'teacher') {
+            } else {
                 window.location.href = 'teacher-dashboard.html';
             }
         }, 2000);
 
     } catch (error) {
         showLoading(false);
-        
-        let errorMessage;
+        let errorMessage = 'Registration failed. ';
         
         if (error.message.includes('fetch') || error.name === 'TypeError') {
-            errorMessage = 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
-        } else if (error.message.includes('exists') || error.message.includes('already')) {
-            errorMessage = 'This email is already registered. Please login or use a different email.';
+            errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (error.message.includes('exists')) {
+            errorMessage = 'This email is already registered. Please login.';
         } else {
-            errorMessage = error.message || 'Registration failed. Please try again.';
+            errorMessage = error.message;
         }
         
         showError(errorMessage);
-        console.error('❌ Registration error:', error);
+        console.error('❌ Error:', error);
     }
 });
-    </script>
+</script>
 </body>
 </html>

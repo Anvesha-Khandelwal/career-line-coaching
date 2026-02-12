@@ -288,220 +288,128 @@
 
     <script src="config.js"></script>
     <script>
-        let selectedRole = 'student';
+let selectedRole = 'student';
 
-        // Test server connection on page load
-        async function testServerConnection() {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-                
-               const API_URL = 'https://career-line-coaching-1.onrender.com'; // Replace with YOUR actual Render URL
-
-               const response = await fetch(`${API_URL}/`, {
-                method: 'GET',
-                signal: controller.signal
+document.getElementById('studentBtn').addEventListener('click', () => {
+    selectedRole = 'student';
+    document.getElementById('studentBtn').classList.add('active');
+    document.getElementById('teacherBtn').classList.remove('active');
 });
-                
-                clearTimeout(timeoutId);
-                
-                if (response.ok) {
-                    console.log('✅ Server is running');
-                    return true;
-                }
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.warn('⚠️ Server connection timeout');
-                } else {
-                    console.warn('⚠️ Server connection test failed:', error.message);
-                }
-                return false;
-            }
-            return false;
-        }
 
-        // Check server on page load (non-blocking)
-        window.addEventListener('DOMContentLoaded', () => {
-            testServerConnection().then(isConnected => {
-                if (!isConnected) {
-                    // Show a helpful message but don't block the form
-                    console.warn('Backend server may not be running. Make sure to start it at http://localhost:5000');
-                }
-            });
+document.getElementById('teacherBtn').addEventListener('click', () => {
+    selectedRole = 'teacher';
+    document.getElementById('teacherBtn').classList.add('active');
+    document.getElementById('studentBtn').classList.remove('active');
+});
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    if (successDiv) successDiv.classList.remove('show');
+    if (errorDiv) {
+        errorDiv.textContent = '⚠️ ' + message;
+        errorDiv.classList.add('show');
+        setTimeout(() => errorDiv.classList.remove('show'), 5000);
+    }
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    if (errorDiv) errorDiv.classList.remove('show');
+    if (successDiv) {
+        successDiv.textContent = '✅ ' + message;
+        successDiv.classList.add('show');
+    }
+}
+
+function showLoading(show) {
+    document.getElementById('loading').classList.toggle('show', show);
+    document.getElementById('loginForm').style.display = show ? 'none' : 'block';
+    document.getElementById('submitBtn').disabled = show;
+}
+
+const existingToken = localStorage.getItem('token');
+const existingRole = localStorage.getItem('userRole');
+if (existingToken && existingRole) {
+    if (existingRole === 'student') {
+        window.location.href = 'student-dashboard.html';
+    } else {
+        window.location.href = 'teacher-dashboard.html';
+    }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+        showError('Please fill in all fields');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        console.log('📤 Logging in to:', window.API_BASE_URL + '/auth/login');
+        
+        const response = await fetch(window.API_BASE_URL + '/auth/login', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email, password, role: selectedRole })
         });
 
-        // Role selection
-        document.getElementById('studentBtn').addEventListener('click', () => {
-            selectedRole = 'student';
-            document.getElementById('studentBtn').classList.add('active');
-            document.getElementById('teacherBtn').classList.remove('active');
-        });
+        console.log('📥 Status:', response.status);
+        const data = await response.json();
+        console.log('📥 Data:', data);
 
-        document.getElementById('teacherBtn').addEventListener('click', () => {
-            selectedRole = 'teacher';
-            document.getElementById('teacherBtn').classList.add('active');
-            document.getElementById('studentBtn').classList.remove('active');
-        });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            
-            // Hide success message if showing
-            if (successDiv) {
-                successDiv.classList.remove('show');
-            }
-            
-            if (errorDiv) {
-                errorDiv.textContent = '⚠️ ' + message;
-                errorDiv.classList.add('show');
-                setTimeout(() => errorDiv.classList.remove('show'), 5000);
-            } else {
-                alert('Error: ' + message);
-            }
+        if (!response.ok) {
+            throw new Error(data.message || 'Login failed');
         }
 
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            const errorDiv = document.getElementById('errorMessage');
-            
-            // Hide error message if showing
-            if (errorDiv) {
-                errorDiv.classList.remove('show');
-            }
-            
-            if (successDiv) {
-                successDiv.textContent = '✅ ' + message;
-                successDiv.classList.add('show');
-            }
-        }
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('userName', data.name);
+        localStorage.setItem('userEmail', email);
 
-        function showLoading(show) {
-            document.getElementById('loading').classList.toggle('show', show);
-            document.getElementById('loginForm').style.display = show ? 'none' : 'block';
-            document.getElementById('submitBtn').disabled = show;
-        }
+        showLoading(false);
+        showSuccess(`Welcome back, ${data.name}!`);
 
-        // Check if already logged in
-        const existingToken = localStorage.getItem('token');
-        const existingRole = localStorage.getItem('userRole');
-        if (existingToken && existingRole) {
-            if (existingRole === 'student') {
+        setTimeout(() => {
+            if (data.role === 'student') {
                 window.location.href = 'student-dashboard.html';
-            } else if (existingRole === 'teacher') {
+            } else {
                 window.location.href = 'teacher-dashboard.html';
             }
+        }, 1000);
+
+    } catch (error) {
+        showLoading(false);
+        let errorMessage = 'Login failed. ';
+        
+        if (error.message.includes('fetch') || error.name === 'TypeError') {
+            errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (error.message.includes('Invalid')) {
+            errorMessage = 'Invalid email or password.';
+        } else {
+            errorMessage = error.message;
         }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                showError('Please fill in all fields');
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showError('Please enter a valid email address');
-                return;
-            }
-
-            showLoading(true);
-
-            try {
-                let response;
-                try {
-                    response = await fetch(`${API_BASE_URL}/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password, role: selectedRole })
-                    });
-                } catch (fetchError) {
-                    // Network error - server not reachable
-                    throw new Error('NETWORK_ERROR');
-                }
-
-                // Check if response is ok before parsing JSON
-                let data;
-                try {
-                    data = await response.json();
-                } catch (jsonError) {
-                    // If we can't parse JSON, server might be down or returned invalid response
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
-                    }
-                    throw new Error('Invalid response from server');
-                }
-
-                if (!response.ok) {
-                    throw new Error(data.message || `Login failed: ${response.status}`);
-                }
-
-                // Validate response data
-                if (!data.token || !data.role || !data.name) {
-                    throw new Error('Invalid response from server');
-                }
-
-                // Store user data
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('userRole', data.role);
-                localStorage.setItem('userName', data.name);
-                localStorage.setItem('userEmail', email);
-
-                showLoading(false);
-                showSuccess(`Welcome back, ${data.name}! Redirecting...`);
-
-                // Redirect based on role
-                setTimeout(() => {
-                    if (data.role === 'student') {
-                        window.location.href = 'student-dashboard.html';
-                    } else if (data.role === 'teacher') {
-                        window.location.href = 'teacher-dashboard.html';
-                    } else {
-                        // Fallback to home if role is unknown
-                        window.location.href = 'index.html';
-                    }
-                }, 1000);
-
-            } catch (error) {
-                showLoading(false);
-                
-                let errorMessage = 'Login failed. Please try again.';
-                
-                // Handle network errors - server not running or unreachable
-                if (error.message === 'NETWORK_ERROR' || 
-                    error.message.includes('fetch') || 
-                    error.message.includes('Failed to fetch') || 
-                    error.message.includes('NetworkError') || 
-                    error.name === 'TypeError' ||
-                    error.message.includes('Network request failed')) {
-                    errorMessage = 'Cannot connect to server. Please make sure the backend is running at http://localhost:5000';
-                } 
-                // Handle authentication errors
-                else if (error.message.includes('credentials') || error.message.includes('Invalid') || error.message.includes('401')) {
-                    errorMessage = 'Invalid email or password. Please check and try again.';
-                } 
-                // Handle validation errors
-                else if (error.message.includes('required') || error.message.includes('fields')) {
-                    errorMessage = error.message;
-                }
-                // Handle server errors
-                else if (error.message.includes('Server error') || error.message.includes('500')) {
-                    errorMessage = 'Server error occurred. Please try again later.';
-                }
-                // Handle other errors
-                else {
-                    errorMessage = error.message || 'Login failed. Please try again.';
-                }
-                
-                showError(errorMessage);
-                console.error('Login error:', error);
-            }
-        });
-    </script>
+        
+        showError(errorMessage);
+        console.error('❌ Error:', error);
+    }
+});
+</script>
 </body>
 </html>
