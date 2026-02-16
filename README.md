@@ -13,7 +13,12 @@ The application focuses on clarity, efficiency, and scalability, making it suita
 ### Teacher Portal
 - Student record management (add, update, delete, search)
 - Fee tracking with paid, pending, and partial status
-- Attendance marking with historical records
+- **Advanced Attendance Management** (NEW!)
+  - Mark attendance with present/absent status
+  - View student-specific attendance records
+  - Export attendance data to text files
+  - Generate attendance statistics and reports
+  - Filter attendance by date range
 - Timetable creation and management
 - Dashboard analytics (students count, fee summary)
 
@@ -42,8 +47,9 @@ The application focuses on clarity, efficiency, and scalability, making it suita
 - bcrypt
 
 ### Data Storage
-- LocalStorage (current implementation)
-- MongoDB (planned migration)
+- MongoDB (NoSQL database for attendance and student records)
+- LocalStorage (browser-based storage for legacy features)
+- Mongoose ODM for MongoDB
 
 ## Project Structure
 
@@ -112,6 +118,17 @@ POST /api/auth/login
 GET  /api/users
 ```
 
+### Attendance Management (NEW!)
+
+```
+POST /api/attendance/mark               - Mark student attendance
+GET  /api/attendance/all                - Get all attendance records
+GET  /api/attendance/student/:email     - Get student-specific records
+GET  /api/attendance/stats/:email       - Get attendance statistics
+GET  /api/attendance/export/txt         - Export all records to TXT
+POST /api/attendance/export/date-range  - Export filtered records
+```
+
 JWT tokens are used for securing protected routes.
 
 ## Data Schema
@@ -154,18 +171,34 @@ JWT tokens are used for securing protected routes.
 
 ## Current Limitations
 
-- Uses LocalStorage (data clears if browser storage is reset)
+- Uses LocalStorage for non-attendance features (data clears if browser storage is reset)
 - No email verification
 - No password recovery flow
 - Single-instance usage (not multi-tenant yet)
 
+## Completed Features (Recently Added)
+
+### Attendance Management System (v1.0) ✅
+- **Full API Implementation** with 6 endpoints for attendance operations
+- **MongoDB Database Integration** for persistent storage
+- **Advanced Attendance Features:**
+  - Mark student attendance (present/absent)
+  - View and filter attendance records
+  - Export attendance data to formatted text files
+  - Generate attendance statistics (percentage, counts)
+  - Date-range based attendance reports
+- **Professional UI** with responsive design and multiple views
+- **Complete Documentation** and API examples
+- **Testing Utilities** for API validation
+
 ## Planned Enhancements
 
 ### Short-term
-- MongoDB integration
+- **Attendance Module** - Advanced tracking and reporting (IN PROGRESS/COMPLETE)
 - Email notifications
 - PDF report generation
 - Payment gateway integration
+- Role-based access control for attendance marking
 
 ### Long-term
 - Parent portal
@@ -198,17 +231,37 @@ NODE_ENV=production
 ## Usage
 
 ### For Teachers
+
+#### Basic Tasks
 1. Register/Login with teacher role
 2. Add student details via "Add New Student" button
 3. Record fee payments using payment modal
 4. Mark daily attendance by date
 5. Create timetables with time slots and subjects
 
+#### Advanced Attendance Management (NEW!)
+1. Open **Attendance Management System**: `attendance-management.html`
+2. Mark attendance for students:
+   - Enter student email, subject, status
+   - Records are saved to MongoDB instantly
+3. View Records:
+   - See all attendance records or filter by student
+4. Generate Reports:
+   - Export attendance to text files
+   - View attendance statistics (percentage, counts)
+   - Filter by date range for reports
+5. Access reports anytime for analysis and audits
+
+#### Recommended Workflow
+- Daily: Mark attendance → Review same-day records
+- Weekly: Generate week reports → Export for records
+- Monthly: Analyze statistics → Generate monthly reports
+
 ### For Students
 1. Register/Login with student role
 2. View personal profile and academic details
 3. Check fee status and payment history
-4. Monitor attendance records
+4. Monitor attendance records and percentage
 5. Access class timetable
 
 
@@ -223,6 +276,15 @@ NODE_ENV=production
 - Fee breakdown
 - Attendance percentage
 - Weekly schedule
+
+## Documentation
+
+- [Attendance Management Guide](docs/attendance_management_guide.md) - Complete API and system documentation
+- [Attendance Quick Start](ATTENDANCE_QUICKSTART.md) - Get started in 5 minutes
+- [Server Setup Guide](START_SERVER.md) - Backend server startup instructions
+- [Deployment Guide](DEPLOYMENT.md) - Production deployment steps
+- [Database Schema](docs/database_schema.md) - detailed data models
+- [API Documentation](docs/api_documentation.md) - Endpoint reference
 
 ## License
 

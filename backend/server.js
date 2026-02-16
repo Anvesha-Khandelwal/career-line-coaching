@@ -2,8 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const connectDB = require('./config/db');
+const attendanceRoutes = require('./routes/attendance');
 
 const app = express();
+
+// Connect to Database
+connectDB();
 
 // ============================================
 // MIDDLEWARE
@@ -292,6 +297,12 @@ app.post('/api/test', (req, res) => {
 });
 
 // ============================================
+// ATTENDANCE ROUTES
+// ============================================
+
+app.use('/api/attendance', attendanceRoutes);
+
+// ============================================
 // ERROR HANDLERS
 // ============================================
 
@@ -307,7 +318,13 @@ app.use((req, res) => {
             'POST /api/auth/login',
             'GET /api/auth/users',
             'GET /health',
-            'GET /'
+            'GET /',
+            'POST /api/attendance/mark',
+            'GET /api/attendance/all',
+            'GET /api/attendance/student/:email',
+            'GET /api/attendance/export/txt',
+            'POST /api/attendance/export/date-range',
+            'GET /api/attendance/stats/:email'
         ]
     });
 });
@@ -338,12 +355,20 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('🌐 Network:', `http://0.0.0.0:${PORT}`);
     console.log('');
     console.log('📋 Available Endpoints:');
-    console.log('   GET  /', '                    - Server status');
-    console.log('   GET  /health', '              - Health check');
-    console.log('   POST /api/auth/register', '   - User registration');
-    console.log('   POST /api/auth/login', '      - User login');
-    console.log('   GET  /api/auth/users', '      - List all users');
-    console.log('   POST /api/test', '            - Test endpoint');
+    console.log('   GET  /', '                         - Server status');
+    console.log('   GET  /health', '                   - Health check');
+    console.log('   POST /api/auth/register', '        - User registration');
+    console.log('   POST /api/auth/login', '           - User login');
+    console.log('   GET  /api/auth/users', '           - List all users');
+    console.log('   POST /api/test', '                 - Test endpoint');
+    console.log('');
+    console.log('📊 Attendance Endpoints:');
+    console.log('   POST /api/attendance/mark', '      - Mark attendance');
+    console.log('   GET  /api/attendance/all', '       - Get all attendance records');
+    console.log('   GET  /api/attendance/student/:email - Get student attendance');
+    console.log('   GET  /api/attendance/export/txt', ' - Export all to TXT');
+    console.log('   POST /api/attendance/export/date-range - Export by date range');
+    console.log('   GET  /api/attendance/stats/:email', ' - Get attendance stats');
     console.log('');
     console.log('✅ CORS: Enabled for all origins');
     console.log('✅ Body Parser: JSON & URL-encoded');

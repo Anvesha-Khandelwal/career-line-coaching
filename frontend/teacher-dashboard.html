@@ -834,11 +834,15 @@
     </div>
 
     <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+
         // Database simulation using localStorage
         let students = [];
         let attendance = {};
         let timetable = [];
         let currentAttendanceData = {};
+        let currentTeacherEmail = '';
 
         // Initialize on page load
         window.onload = function() {
@@ -847,6 +851,7 @@
             updateStats();
             document.getElementById('attendanceDate').valueAsDate = new Date();
             document.getElementById('paymentDate').valueAsDate = new Date();
+            currentTeacherEmail = localStorage.getItem('userEmail') || 'teacher@school.com';
             loadAttendance();
             loadTimetable();
         };
@@ -862,9 +867,11 @@
                 localStorage.setItem('token', 'demo-token');
                 localStorage.setItem('userRole', 'teacher');
                 localStorage.setItem('userName', 'Demo Teacher');
+                localStorage.setItem('userEmail', 'teacher@school.com');
             }
             
             document.getElementById('teacherName').textContent = '👨‍🏫 ' + (localStorage.getItem('userName') || 'Teacher');
+            currentTeacherEmail = localStorage.getItem('userEmail') || 'teacher@school.com';
         }
 
         function logout() {
@@ -1126,13 +1133,6 @@
             
             if (!date) return;
 
-            // Load saved attendance from database
-            const savedAttendance = localStorage.getItem('attendance');
-            attendance = savedAttendance ? JSON.parse(savedAttendance) : {};
-
-            const dateKey = date;
-            currentAttendanceData = attendance[dateKey] || {};
-
             const grid = document.getElementById('attendanceGrid');
             
             let filteredStudents = students;
@@ -1155,6 +1155,9 @@
                 return;
             }
 
+            // Initialize currentAttendanceData
+            currentAttendanceData = {};
+
             grid.innerHTML = `
                 <div class="attendance-row header">
                     <div>Student Name</div>
@@ -1171,13 +1174,13 @@
                         <div>Class ${student.class}</div>
                         <div>
                             <button class="attendance-btn btn-present ${status === 'present' ? 'active' : ''}" 
-                                    onclick="markAttendance('${student.id}', 'present')">
+                                    onclick="markAttendance('${student.id}', 'present', this)">
                                 ✓ Present
                             </button>
                         </div>
                         <div>
                             <button class="attendance-btn btn-absent ${status === 'absent' ? 'active' : ''}" 
-                                    onclick="markAttendance('${student.id}', 'absent')">
+                                    onclick="markAttendance('${student.id}', 'absent', this)">
                                 ✗ Absent
                             </button>
                         </div>
@@ -1186,11 +1189,21 @@
             }).join('');
         }
 
-        function markAttendance(studentId, status) {
+        function markAttendance(studentId, status, buttonElement) {
             currentAttendanceData[studentId] = status;
+
+            // Update button visual feedback
+            const parentRow = buttonElement.closest('.attendance-row');
+            const buttons = parentRow.querySelectorAll('.attendance-btn');
+            
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            buttonElement.classList.add('active');
         }
 
-        function saveAttendance() {
+        async function saveAttendance() {
             const date = document.getElementById('attendanceDate').value;
             
             if (!date) {
@@ -1198,13 +1211,69 @@
                 return;
             }
 
-            attendance[date] = currentAttendanceData;
-            localStorage.setItem('attendance', JSON.stringify(attendance));
-            
-            showAlert('Attendance saved successfully!', 'success');
-        }
+            // Get subject for this attendance marking
+            const subject = prompt('Enter subject for this attendance marking:', 'General');
+            if (!subject) {
+                showAlert('Subject is required!', 'error');
+                return;
+            }
 
-   
+            // Find marked students
+            const markedStudents = Object.keys(currentAttendanceData);
+            
+            if (markedStudents.length === 0) {
+                showAlert('Please mark at least one student!', 'error');
+                return;
+            }
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            // Submit each attendance record to the API
+            for (const studentId of markedStudents) {
+                const student = students.find(s => s.id === studentId);
+                if (!student) continue;
+
+                const status = currentAttendanceData[studentId];
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/attendance/mark`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            studentEmail: student.email,
+                            subject: subject,
+                            status: status,
+                            markedBy: currentTeacherEmail
+                        })
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                        console.error(`Failed to save attendance for ${student.name}`);
+                    }
+                } catch (error) {
+                    errorCount++;
+                    console.error(`Error saving attendance for ${student.name}:`, error);
+                }
+            }
+
+            if (successCount > 0) {
+                showAlert(`✅ Attendance saved successfully! (${successCount} records)`, 'success');
+            }
+            
+            if (errorCount > 0) {
+                showAlert(`⚠️ ${errorCount} records failed to save. Check backend connection.`, 'error');
+            }
+
+            // Clear the data after saving
+            currentAttendanceData = {};
+            loadAttendance();
+        }
 
         function loadTimetable() {
             const saved = localStorage.getItem('timetable');
