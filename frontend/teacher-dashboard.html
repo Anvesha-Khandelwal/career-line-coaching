@@ -493,6 +493,7 @@
                     <button class="tab-btn active" onclick="showTab('students')">👨‍🎓 Students</button>
                     <button class="tab-btn" onclick="showTab('attendance')">✅ Attendance</button>
                     <button class="tab-btn" onclick="showTab('timetable')">📅 Timetable</button>
+                    <button class="tab-btn" onclick="openAttendanceReports()" style="background: linear-gradient(135deg, #28a745, #20c997); border-color: transparent; color: white;">📊 Advanced Reports</button>
                 </div>
 
                 <!-- STUDENTS TAB -->
@@ -1359,6 +1360,14 @@
             localStorage.setItem('timetable', JSON.stringify(timetable));
             renderTimetable();
             showAlert('Period deleted successfully!', 'success');
+        }
+
+        // ========== ADVANCED ATTENDANCE REPORTS ==========
+
+        function openAttendanceReports() {
+            // Open attendance management system in a new tab
+            window.open('attendance-management.html', '_blank');
+            showAlert('Opening Advanced Attendance Reports...', 'success');
         }
     </script>
 </body>
