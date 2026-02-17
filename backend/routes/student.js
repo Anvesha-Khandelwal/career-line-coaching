@@ -8,10 +8,24 @@ router.get('/', async (req, res) => {
         console.log('📋 Fetching all students');
         const students = await Student.find().sort({ createdAt: -1 });
         console.log(`Total students: ${students.length}`);
-        res.json(students);
+        res.json({ success: true, data: students });
     } catch (error) {
         console.error('❌ Error fetching students:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+// Add after the GET /:id route
+router.get('/email/:email', async (req, res) => {
+    try {
+        const student = await Student.findOne({ 
+            email: req.params.email.toLowerCase() 
+        });
+        if (!student) {
+            return res.status(404).json({ success: false, message: 'Student not found' });
+        }
+        res.json({ success: true, data: student });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
@@ -63,7 +77,7 @@ router.post('/', async (req, res) => {
         console.log('✅ Student added:', newStudent.name);
         console.log(`📊 Student ID: ${newStudent._id}`);
 
-        res.status(201).json(newStudent);
+        res.status(201).json({ success: true, message: 'Student added', data: newStudent });
     } catch (error) {
         console.error('❌ Error adding student:', error);
         if (error.name === 'ValidationError') {
