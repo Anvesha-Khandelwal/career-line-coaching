@@ -130,24 +130,31 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete student
-router.delete('/:id', async (req, res) => {
+// Delete student by email
+router.delete('/email/:email', async (req, res) => {
     try {
-        console.log('🗑️ Deleting student:', req.params.id);
+        console.log('🗑️ Deleting student by email:', req.params.email);
         
-        const student = await Student.findByIdAndDelete(req.params.id);
+        const student = await Student.findOneAndDelete({ 
+            email: req.params.email.toLowerCase() 
+        });
+        
         if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Student not found' 
+            });
         }
 
         console.log('✅ Student deleted:', student.name);
-        res.json({ message: 'Student deleted successfully', student });
+        res.json({ 
+            success: true, 
+            message: 'Student deleted successfully', 
+            student 
+        });
     } catch (error) {
         console.error('❌ Error deleting student:', error);
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: 'Invalid student ID' });
-        }
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

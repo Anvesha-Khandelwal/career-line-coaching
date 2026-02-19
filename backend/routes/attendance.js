@@ -264,4 +264,60 @@ router.get('/stats/:email', async (req, res) => {
   }
 });
 
+// POST bulk mark attendance
+router.post('/bulk', async (req, res) => {
+    try {
+        const { records, subject, markedBy, sessionDate } = req.body;
+        
+        if (!records || !Array.isArray(records) || !subject) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'records array and subject are required' 
+            });
+        }
+
+        const Student = require('../models/student');
+        const date = sessionDate || new Date().toISOString().split('T')[0];
+        const results = [];
+
+        for (const r of records) {
+            // Look up student name
+            const student = await Student.findOne({ 
+                email: r.studentEmail.toLowerCase() 
+            }).catch(() => null);
+            
+            const studentName = student ? student.name : r.studentEmail;
+
+            // Upsert attendance (update if exists, create if not)
+            const record = await Attendance.findOneAndUpdate(
+                { 
+                    studentEmail: r.studentEmail.toLowerCase(), 
+                    subject, 
+                    sessionDate: date 
+                },
+                {
+                    $set: {
+                        status: r.status,
+                        markedBy: markedBy || 'admin',
+                        studentName,
+                        date: new Date()
+                    }
+                },
+                { upsert: true, new: true }
+            );
+            
+            results.push(record);
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Saved ${results.length} records`, 
+            data: results 
+        });
+    } catch (err) {
+        console.error('Bulk attendance error:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 module.exports = router;

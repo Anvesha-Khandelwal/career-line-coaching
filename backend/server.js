@@ -302,7 +302,7 @@ app.post('/api/test', (req, res) => {
 
 app.use('/api/attendance', attendanceRoutes);
 const studentRoutes = require('./routes/student');
-app.use('/api/student', studentRoutes);
+app.use('/api/students', studentRoutes);
 
 // ============================================
 // ERROR HANDLERS
