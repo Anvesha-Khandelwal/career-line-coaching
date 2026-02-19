@@ -1383,7 +1383,7 @@ async function addStudent() {
 async function deleteStudent(email, name) {
   if (!confirm(`Delete student "${name}"? This won't delete their attendance records.`)) return;
   try {
-    const r = await api(`/students/${encodeURIComponent(email)}`, 'DELETE');
+    const r = await api(`/students/email/${encodeURIComponent(email)}`, 'DELETE');
     if (r.ok) {
       showAlert('studentsAlert', `✅ Student "${name}" deleted.`, 'success');
       loadStudentsList();
