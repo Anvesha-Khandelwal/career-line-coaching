@@ -301,7 +301,11 @@ app.post('/api/test', (req, res) => {
 // ============================================
 
 app.use('/api/attendance', attendanceRoutes);
-const studentRoutes = require('./routes/student');
+// ============================================
+// STUDENTS ROUTES
+// ============================================
+
+const studentRoutes = require('./routes/students');
 app.use('/api/students', studentRoutes);
 
 // ============================================

@@ -39,15 +39,15 @@ const studentSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        required: true,
+        unique: true,
         sparse: true,
         lowercase: true,
         trim: true
     },
     mobile: {
         type: String,
-        required: true,
-        unique: true,
-        match: /^[0-9]{10}$/
+        trim: true
     },
     phone: {
         type: String,
@@ -60,12 +60,12 @@ const studentSchema = new mongoose.Schema({
     // Academic Information
     class: {
         type: String,
-        required: true,
+        default: '10',
         enum: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     },
     board: {
         type: String,
-        required: true,
+        default: 'CBSE',
         enum: ['CBSE', 'RBSE']
     },
     stream: {
@@ -77,13 +77,18 @@ const studentSchema = new mongoose.Schema({
         type: String
     },
     rollNumber: {
-        type: String
+        type: String,
+        trim: true
+    },
+    batch: {
+        type: String,
+        trim: true
     },
     
     // Fee Information
     totalFee: {
         type: Number,
-        required: true,
+        default: 0,
         min: 0
     },
     feePaid: {
@@ -106,8 +111,7 @@ const studentSchema = new mongoose.Schema({
         type: String
     },
     parentMobile: {
-        type: String,
-        match: /^[0-9]{10}$/
+        type: String
     },
     parentEmail: {
         type: String,
