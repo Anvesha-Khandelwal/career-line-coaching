@@ -130,6 +130,46 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// Update student by email
+router.put('/email/:email', async (req, res) => {
+    try {
+        console.log('✏️ Updating student by email:', req.params.email);
+        
+        const student = await Student.findOne({ 
+            email: req.params.email.toLowerCase() 
+        });
+        
+        if (!student) {
+            return res.status(404).json({ success: false, message: 'Student not found' });
+        }
+
+        const { name, mobile, phone, class: studentClass, board, totalFee, feePaid, email, address, fatherName, subject, dob, rollNumber, batch } = req.body;
+
+        // Update student data
+        if (name) student.name = name.trim();
+        if (mobile) student.mobile = mobile.trim();
+        if (phone) student.phone = phone.trim();
+        if (studentClass) student.class = studentClass;
+        if (board) student.board = board;
+        if (totalFee !== undefined) student.totalFee = Number(totalFee);
+        if (feePaid !== undefined) student.feePaid = Number(feePaid);
+        if (email && email !== req.params.email) student.email = email.trim().toLowerCase();
+        if (address !== undefined) student.address = address.trim();
+        if (fatherName !== undefined) student.fatherName = fatherName.trim();
+        if (subject !== undefined) student.subject = subject.trim();
+        if (dob !== undefined) student.dob = dob;
+        if (rollNumber !== undefined) student.rollNumber = rollNumber.trim();
+        if (batch !== undefined) student.batch = batch.trim();
+
+        await student.save();
+        console.log('✅ Student updated:', student.name);
+        res.json({ success: true, data: student });
+    } catch (error) {
+        console.error('❌ Error updating student:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // Delete student by email
 router.delete('/email/:email', async (req, res) => {
     try {
