@@ -1,306 +1,240 @@
 # Career Line – Coaching Institute Management System
 
-A full-stack web application designed to manage academic and administrative operations of a coaching institute. The system provides role-based access for teachers and students, enabling efficient handling of student records, fees, attendance, and timetables.
+<div align="center">
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
+![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+**A modern, full-stack web application for managing coaching institute operations.**
+
+[Features](#features) • [Installation](#installation) • [API](#api-reference) • [Contributing](#contributing)
+
+</div>
+
+---
 
 ## Overview
 
-Career Line is built to replace manual record-keeping with a centralized digital system. It supports Classes 1–12, multiple boards (CBSE, RBSE, ICSE), and various subjects, offering separate dashboards for teachers and students.
+Career Line is a comprehensive coaching institute management system that streamlines academic and administrative operations. Built with Node.js, Express, and MongoDB, it provides separate dashboards for teachers and students with real-time data synchronization.
 
-The application focuses on clarity, efficiency, and scalability, making it suitable for small to medium coaching institutes.
+**Supported:** Classes 1–12 | Multiple boards (CBSE, RBSE, ICSE)
 
-## Key Features
+---
+
+## Features
 
 ### Teacher Portal
-- Student record management (add, update, delete, search)
-- Fee tracking with paid, pending, and partial status
-- **Advanced Attendance Management** (NEW!)
-  - Mark attendance with present/absent status
-  - View student-specific attendance records
-  - Export attendance data to text files
-  - Generate attendance statistics and reports
-  - Filter attendance by date range
-- Timetable creation and management
-- Dashboard analytics (students count, fee summary)
+- **Student Management** – Complete CRUD operations with search and filters
+- **Smart Attendance System** – Name-based marking with real-time dashboard and bulk actions
+- **Attendance Analytics** – Statistics, subject-wise breakdowns, and threshold alerts
+- **Fee Management** – Track payments, status, and history
+- **Reports & Export** – Download attendance records as formatted text files
+- **Timetable Management** – Create and manage class schedules
 
 ### Student Portal
-- Personal profile and academic details
-- Fee status and payment history
-- Attendance overview and percentage
-- Class timetable access
+- View personal dashboard with academic status
+- Check fee status and payment history
+- Monitor attendance records and percentages
+- Access class timetable
 
-### Authentication & Security
-- Role-based authentication (Student / Teacher)
-- JWT-based session management
-- Password hashing using bcrypt
+### Security
+- JWT-based authentication with role-based access control
+- bcrypt password encryption
+- Protected API routes
 
-## Technology Stack
+---
 
-### Frontend
-- HTML5
-- CSS3 (responsive layout, modern UI)
-- JavaScript (ES6+)
+## Tech Stack
 
-### Backend
-- Node.js
-- Express.js
-- JSON Web Tokens (JWT)
-- bcrypt
+**Frontend:** HTML5, CSS3, JavaScript (ES6+)  
+**Backend:** Node.js, Express.js, Mongoose  
+**Database:** MongoDB  
+**Authentication:** JWT, bcrypt  
 
-### Data Storage
-- MongoDB (NoSQL database for attendance and student records)
-- LocalStorage (browser-based storage for legacy features)
-- Mongoose ODM for MongoDB
+---
+
+## Installation
+
+### Prerequisites
+- Node.js (v14+)
+- MongoDB (v4.4+)
+- npm
+
+### Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/Anvesha-Khandelwal/career-line-coaching.git
+cd career-line-coaching
+
+# Backend setup
+cd backend
+npm install
+node server.js
+
+# Frontend setup
+cd ../frontend
+# Open index.html in browser or use Live Server
+```
+
+### Environment Variables
+
+Create `backend/.env`:
+```env
+MONGO_URI=mongodb://localhost:27017/career_line
+PORT=5000
+JWT_SECRET=your_secure_secret_key_here
+```
+
+---
+
+## Usage
+
+### Teachers
+1. Register/Login with teacher role
+2. Add students via "Add Student" form (name, email, roll number, etc.)
+3. Mark attendance:
+   - Enter subject → Click "Load Students"
+   - Toggle Present/Absent for each student
+   - Use bulk actions or click "Save Attendance"
+4. View records, statistics, and export reports
+
+### Students
+1. Register/Login with student role
+2. View dashboard for personal info, fees, and attendance
+3. Access class timetable
+
+---
+
+## API Reference
+
+### Base URL: `http://localhost:5000/api`
+
+#### Authentication
+```http
+POST /auth/register    # Register new user
+POST /auth/login       # Login user
+```
+
+#### Students
+```http
+GET    /students              # Get all students
+POST   /students              # Add new student
+GET    /students/email/:email # Get student by email
+DELETE /students/email/:email # Delete student
+```
+
+#### Attendance
+```http
+POST /attendance/mark              # Mark single attendance
+POST /attendance/bulk              # Mark entire class (recommended)
+GET  /attendance/all               # Get all records
+GET  /attendance/student/:email    # Get student records
+GET  /attendance/stats/:email      # Get statistics
+GET  /attendance/export/txt        # Export all as TXT
+POST /attendance/export/date-range # Export filtered records
+```
+
+**Example Request:**
+```javascript
+// Mark bulk attendance
+POST /api/attendance/bulk
+{
+  "records": [
+    { "studentEmail": "alice@example.com", "status": "present" },
+    { "studentEmail": "bob@example.com", "status": "absent" }
+  ],
+  "subject": "Mathematics",
+  "markedBy": "teacher@example.com"
+}
+```
+
+---
 
 ## Project Structure
 
 ```
 career-line-coaching/
-│
 ├── frontend/
 │   ├── index.html
 │   ├── login.html
-│   ├── register.html
-│   ├── student-dashboard.html
 │   ├── teacher-dashboard.html
-│   └── assets/
-│       ├── css/
-│       ├── js/
-│       └── images/
-│
+│   ├── student-dashboard.html
+│   ├── attendance.html          # New attendance system
+│   └── css/style.css
 ├── backend/
 │   ├── server.js
-│   ├── server-working.js
-│   ├── routes/
+│   ├── config/db.js
 │   ├── models/
-│   └── package.json
-│
-├── README.md
-├── .gitignore
-└── LICENSE
+│   │   ├── student.js
+│   │   └── attendance.js
+│   └── routes/
+│       ├── students.js
+│       └── attendance.js
+└── README.md
 ```
 
-## Installation & Setup
-
-### Prerequisites
-- Node.js (v14+)
-- npm
-- Git
-
-### Backend Setup
-
-```bash
-cd backend
-npm install
-node server-working.js
-```
-
-The backend will start on:
-```
-http://localhost:5000
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-npx live-server
-```
-
-Open the application in your browser via the provided local URL.
-
-## API Overview
-
-### Authentication
-
-```
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/users
-```
-
-### Attendance Management (NEW!)
-
-```
-POST /api/attendance/mark               - Mark student attendance
-GET  /api/attendance/all                - Get all attendance records
-GET  /api/attendance/student/:email     - Get student-specific records
-GET  /api/attendance/stats/:email       - Get attendance statistics
-GET  /api/attendance/export/txt         - Export all records to TXT
-POST /api/attendance/export/date-range  - Export filtered records
-```
-
-JWT tokens are used for securing protected routes.
-
-## Data Schema
-
-### Student Record
-```javascript
-{
-  id: String,
-  name: String,
-  fatherName: String,
-  mobile: String,
-  email: String,
-  class: String,
-  board: String,
-  subject: String,
-  totalFee: Number,
-  feePaid: Number,
-  address: String
-}
-```
-
-### Attendance
-```javascript
-{
-  "YYYY-MM-DD_studentId": "present" | "absent"
-}
-```
-
-### Timetable
-```javascript
-{
-  id: String,
-  day: String,
-  time: String,
-  class: String,
-  subject: String,
-  teacher: String
-}
-```
-
-## Current Limitations
-
-- Uses LocalStorage for non-attendance features (data clears if browser storage is reset)
-- No email verification
-- No password recovery flow
-- Single-instance usage (not multi-tenant yet)
-
-## Completed Features (Recently Added)
-
-### Attendance Management System (v1.0) ✅
-- **Full API Implementation** with 6 endpoints for attendance operations
-- **MongoDB Database Integration** for persistent storage
-- **Advanced Attendance Features:**
-  - Mark student attendance (present/absent)
-  - View and filter attendance records
-  - Export attendance data to formatted text files
-  - Generate attendance statistics (percentage, counts)
-  - Date-range based attendance reports
-- **Professional UI** with responsive design and multiple views
-- **Complete Documentation** and API examples
-- **Testing Utilities** for API validation
-
-## Planned Enhancements
-
-### Short-term
-- **Attendance Module** - Advanced tracking and reporting (IN PROGRESS/COMPLETE)
-- Email notifications
-- PDF report generation
-- Payment gateway integration
-- Role-based access control for attendance marking
-
-### Long-term
-- Parent portal
-- Exam and result management
-- SMS notifications
-- Mobile app support
-- Docker & CI/CD pipeline
-- Multi-branch support
+---
 
 ## Deployment
 
-### Frontend
-- Netlify
-- Vercel
-
-### Backend
-- Railway
-- Render
-- Heroku
-
-### Environment Variables
-
-```env
+### Backend (Railway/Render)
+```bash
+# Set environment variables
+MONGO_URI=<mongodb-atlas-uri>
 PORT=5000
-JWT_SECRET=your_secret_key
-MONGODB_URI=your_database_url
+JWT_SECRET=<secret>
 NODE_ENV=production
 ```
 
-## Usage
+### Frontend (Vercel/Netlify)
+- Connect repository
+- Deploy `frontend` directory
+- Update API URLs to production backend
 
-### For Teachers
+---
 
-#### Basic Tasks
-1. Register/Login with teacher role
-2. Add student details via "Add New Student" button
-3. Record fee payments using payment modal
-4. Mark daily attendance by date
-5. Create timetables with time slots and subjects
+## Roadmap
 
-#### Advanced Attendance Management (NEW!)
-1. Open **Attendance Management System**: `attendance-management.html`
-2. Mark attendance for students:
-   - Enter student email, subject, status
-   - Records are saved to MongoDB instantly
-3. View Records:
-   - See all attendance records or filter by student
-4. Generate Reports:
-   - Export attendance to text files
-   - View attendance statistics (percentage, counts)
-   - Filter by date range for reports
-5. Access reports anytime for analysis and audits
+**v2.1** – Email notifications, PDF reports, bulk import  
+**v2.5** – Mobile app, parent portal, payment gateway  
+**v3.0** – Multi-branch support, video conferencing, Docker  
 
-#### Recommended Workflow
-- Daily: Mark attendance → Review same-day records
-- Weekly: Generate week reports → Export for records
-- Monthly: Analyze statistics → Generate monthly reports
+---
 
-### For Students
-1. Register/Login with student role
-2. View personal profile and academic details
-3. Check fee status and payment history
-4. Monitor attendance records and percentage
-5. Access class timetable
+## Contributing
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Teacher Dashboard
-- Real-time analytics (students, fees collected, pending)
-- Student management table with actions
-- Attendance marking interface
-- Timetable grid
-
-### Student Dashboard
-- Profile overview
-- Fee breakdown
-- Attendance percentage
-- Weekly schedule
-
-## Documentation
-
-- [Attendance Management Guide](docs/attendance_management_guide.md) - Complete API and system documentation
-- [Attendance Quick Start](ATTENDANCE_QUICKSTART.md) - Get started in 5 minutes
-- [Server Setup Guide](START_SERVER.md) - Backend server startup instructions
-- [Deployment Guide](DEPLOYMENT.md) - Production deployment steps
-- [Database Schema](docs/database_schema.md) - detailed data models
-- [API Documentation](docs/api_documentation.md) - Endpoint reference
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
 
 ## Author
 
 **Anvesha Khandelwal**  
-Computer Science Engineering Student  
-Full-Stack Web Development
+Computer Science Engineering Student | Full-Stack Developer
 
-**Contact:**
-- Email: anveshak0906@gmail.com
-- GitHub: [@Anvesha-Khandelwal](https://github.com/Anvesha-Khandelwal)
-- LinkedIn: [Anveshak Khandelwal](https://www.linkedin.com/in/anvesha-khandelwal-115778320/)
+[![GitHub](https://img.shields.io/badge/GitHub-Anvesha--Khandelwal-181717?logo=github)](https://github.com/Anvesha-Khandelwal)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Anvesha_Khandelwal-0077B5?logo=linkedin)](https://www.linkedin.com/in/anvesha-khandelwal-115778320/)
+[![Email](https://img.shields.io/badge/Email-anveshak0906@gmail.com-D14836?logo=gmail)](mailto:anveshak0906@gmail.com)
 
-**Built for Educational Excellence**
+---
 
-*Version 1.0.0 | January 2026*
+<div align="center">
+
+**Built with ❤️ for Educational Excellence**
+
+*Version 2.0.0 | February 2026*
+
+</div>

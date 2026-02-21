@@ -864,15 +864,13 @@
             const name = localStorage.getItem('userName');
             
             if (!token || role !== 'teacher') {
-                // For demo purposes, set default values
-                localStorage.setItem('token', 'demo-token');
-                localStorage.setItem('userRole', 'teacher');
-                localStorage.setItem('userName', 'Demo Teacher');
-                localStorage.setItem('userEmail', 'teacher@school.com');
+                // Redirect to login if not authenticated
+                window.location.href = 'login.html';
+                return;
             }
             
-            document.getElementById('teacherName').textContent = '👨‍🏫 ' + (localStorage.getItem('userName') || 'Teacher');
-            currentTeacherEmail = localStorage.getItem('userEmail') || 'teacher@school.com';
+            document.getElementById('teacherName').textContent = '👨‍🏫 ' + (name || 'Teacher');
+            currentTeacherEmail = localStorage.getItem('userEmail') || '';
         }
 
         function logout() {
@@ -916,14 +914,23 @@
 
         // ========== STUDENT MANAGEMENT ==========
 
-        function loadStudents() {
-            const saved = localStorage.getItem('students');
-            students = saved ? JSON.parse(saved) : [];
-            renderStudents();
+        async function loadStudents() {
+            try {
+                const response = await fetch('http://localhost:5000/api/students');
+                const result = await response.json();
+                students = result.data || result || [];
+                renderStudents();
+            } catch (error) {
+                console.error('Error loading students from API:', error);
+                // Fallback to localStorage if API fails
+                const saved = localStorage.getItem('students');
+                students = saved ? JSON.parse(saved) : [];
+                renderStudents();
+            }
         }
 
         function saveToStorage() {
-            localStorage.setItem('students', JSON.stringify(students));
+            // This function is now handled by API calls in saveStudent()
             updateStats();
         }
 
@@ -968,9 +975,9 @@
                         <td>₹${pending}</td>
                         <td><span class="${statusClass}">${status}</span></td>
                         <td>
-                            <button class="action-btn btn-payment" onclick="openPaymentModal('${student.id}')" ${pending <= 0 ? 'disabled' : ''}>💰</button>
-                            <button class="action-btn btn-edit" onclick="editStudent('${student.id}')">✏️</button>
-                            <button class="action-btn btn-delete" onclick="deleteStudent('${student.id}')">🗑️</button>
+                            <button class="action-btn btn-payment" onclick="openPaymentModal('${student.email}')" ${pending <= 0 ? 'disabled' : ''}>💰</button>
+                            <button class="action-btn btn-edit" onclick="editStudent('${student.email}')">✏️</button>
+                            <button class="action-btn btn-delete" onclick="deleteStudent('${student.email}')">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -1017,79 +1024,119 @@
             document.getElementById('studentModal').classList.remove('active');
         }
 
-        function saveStudent(event) {
+        async function saveStudent(event) {
             event.preventDefault();
             
-            const studentData = {
-                id: document.getElementById('editStudentId').value || Date.now().toString(),
-                name: document.getElementById('studentName').value,
-                fatherName: document.getElementById('fatherName').value,
-                mobile: document.getElementById('mobile').value,
-                email: document.getElementById('email').value,
-                class: document.getElementById('class').value,
-                board: document.getElementById('board').value,
-                subject: document.getElementById('subject').value,
-                dob: document.getElementById('dob').value,
-                totalFee: parseFloat(document.getElementById('totalFee').value),
-                feePaid: parseFloat(document.getElementById('feePaid').value),
-                address: document.getElementById('address').value,
-                createdAt: new Date().toISOString()
-            };
-
-            const existingIndex = students.findIndex(s => s.id === studentData.id);
+            const email = document.getElementById('email').value;
+            const editingEmail = document.getElementById('editStudentId').value;
+            const name = document.getElementById('studentName').value;
+            const mobile = document.getElementById('mobile').value;
+            const totalFee = parseFloat(document.getElementById('totalFee').value) || 0;
+            const feePaid = parseFloat(document.getElementById('feePaid').value) || 0;
             
-            if (existingIndex !== -1) {
-                students[existingIndex] = studentData;
-                showAlert('Student updated successfully!', 'success');
-            } else {
-                students.push(studentData);
-                showAlert('Student added successfully!', 'success');
+            if (!name || !email) {
+                showAlert('Name and email are required!', 'error');
+                return;
             }
-
-            saveToStorage();
-            renderStudents();
-            closeModal();
+            
+            const studentData = {
+                name,
+                email,
+                mobile,
+                phone: mobile,
+                class: document.getElementById('class').value || '10',
+                board: document.getElementById('board').value || 'CBSE',
+                totalFee,
+                feePaid,
+                fatherName: document.getElementById('fatherName').value || '',
+                subject: document.getElementById('subject').value || '',
+                dob: document.getElementById('dob').value || '',
+                address: document.getElementById('address').value || ''
+            };
+            
+            try {
+                let response;
+                if (editingEmail) {
+                    // Update existing student
+                    response = await fetch('http://localhost:5000/api/students/email/' + encodeURIComponent(editingEmail), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(studentData)
+                    });
+                } else {
+                    // Create new student
+                    response = await fetch('http://localhost:5000/api/students', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(studentData)
+                    });
+                }
+                
+                const result = await response.json();
+                if (response.ok || result.success) {
+                    showAlert(editingEmail ? '✅ Student updated successfully!' : '✅ Student added successfully!', 'success');
+                    loadStudents();
+                    closeModal();
+                } else {
+                    showAlert('❌ ' + (result.message || 'Failed to save student'), 'error');
+                }
+            } catch (error) {
+                console.error('Error saving student:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+            }
         }
 
-        function editStudent(id) {
-            const student = students.find(s => s.id === id);
+        function editStudent(email) {
+            const student = students.find(s => s.email === email);
             if (!student) return;
 
             document.getElementById('modalTitle').textContent = 'Edit Student';
-            document.getElementById('editStudentId').value = student.id;
+            document.getElementById('editStudentId').value = email;
             document.getElementById('studentName').value = student.name;
-            document.getElementById('fatherName').value = student.fatherName;
-            document.getElementById('mobile').value = student.mobile;
+            document.getElementById('fatherName').value = student.fatherName || '';
+            document.getElementById('mobile').value = student.mobile || student.phone || '';
             document.getElementById('email').value = student.email;
-            document.getElementById('class').value = student.class;
-            document.getElementById('board').value = student.board;
-            document.getElementById('subject').value = student.subject;
+            document.getElementById('class').value = student.class || '';
+            document.getElementById('board').value = student.board || '';
+            document.getElementById('subject').value = student.subject || '';
             document.getElementById('dob').value = student.dob || '';
-            document.getElementById('totalFee').value = student.totalFee;
-            document.getElementById('feePaid').value = student.feePaid;
+            document.getElementById('totalFee').value = student.totalFee || 0;
+            document.getElementById('feePaid').value = student.feePaid || 0;
             document.getElementById('address').value = student.address || '';
 
             document.getElementById('studentModal').classList.add('active');
         }
 
-        function deleteStudent(id) {
+        async function deleteStudent(email) {
             if (!confirm('Are you sure you want to delete this student?')) return;
             
-            students = students.filter(s => s.id !== id);
-            saveToStorage();
-            renderStudents();
-            showAlert('Student deleted successfully!', 'success');
+            try {
+                const response = await fetch('http://localhost:5000/api/students/email/' + encodeURIComponent(email), {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    showAlert('✅ Student deleted successfully!', 'success');
+                    loadStudents();
+                } else {
+                    showAlert('❌ Failed to delete student', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+            }
         }
 
         // ========== PAYMENT MANAGEMENT ==========
 
-        function openPaymentModal(id) {
-            const student = students.find(s => s.id === id);
+        function openPaymentModal(email) {
+            const student = students.find(s => s.email === email);
             if (!student) return;
 
-            const pending = student.totalFee - student.feePaid;
+            const pending = (student.totalFee || 0) - (student.feePaid || 0);
             
-            document.getElementById('paymentStudentId').value = student.id;
+            document.getElementById('paymentStudentId').value = student.email;
             document.getElementById('paymentStudentName').value = student.name;
             document.getElementById('pendingAmount').value = '₹' + pending;
             document.getElementById('paymentAmount').value = '';
@@ -1102,28 +1149,42 @@
             document.getElementById('paymentModal').classList.remove('active');
         }
 
-        function recordPayment(event) {
+        async function recordPayment(event) {
             event.preventDefault();
             
-            const studentId = document.getElementById('paymentStudentId').value;
+            const studentEmail = document.getElementById('paymentStudentId').value;
             const amount = parseFloat(document.getElementById('paymentAmount').value);
             
-            const student = students.find(s => s.id === studentId);
+            const student = students.find(s => s.email === studentEmail);
             if (!student) return;
 
-            const pending = student.totalFee - student.feePaid;
+            const pending = (student.totalFee || 0) - (student.feePaid || 0);
             
             if (amount > pending) {
                 showAlert('Payment amount cannot exceed pending amount!', 'error');
                 return;
             }
 
-            student.feePaid += amount;
+            const newFeePaid = (student.feePaid || 0) + amount;
             
-            saveToStorage();
-            renderStudents();
-            closePaymentModal();
-            showAlert(`Payment of ₹${amount} recorded successfully!`, 'success');
+            try {
+                const response = await fetch('http://localhost:5000/api/students/email/' + encodeURIComponent(studentEmail), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ feePaid: newFeePaid })
+                });
+                
+                if (response.ok) {
+                    showAlert('✅ Payment of ₹' + amount + ' recorded successfully!', 'success');
+                    loadStudents();
+                    closePaymentModal();
+                } else {
+                    showAlert('❌ Failed to record payment', 'error');
+                }
+            } catch (error) {
+                console.error('Error recording payment:', error);
+                showAlert('❌ Error: ' + error.message, 'error');
+            }
         }
 
         // ========== ATTENDANCE MANAGEMENT ==========
@@ -1365,9 +1426,8 @@
         // ========== ADVANCED ATTENDANCE REPORTS ==========
 
         function openAttendanceReports() {
-            // Open attendance management system in a new tab
-            window.open('attendance-management.html', '_blank');
-            showAlert('Opening Advanced Attendance Reports...', 'success');
+            // Navigate to attendance management in the same tab
+            window.location.href = 'attendance-management.html';
         }
     </script>
 </body>

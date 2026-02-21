@@ -721,7 +721,10 @@
   <!-- ─── MAIN ─────────────────────────────────────────────────────────────── -->
   <div class="main">
     <div class="topbar">
-      <h1 id="panelTitle">Mark Attendance</h1>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <button onclick="goBackToDashboard()" style="background: linear-gradient(135deg, #0087B6, #009FCC); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">← Back to Dashboard</button>
+        <h1 id="panelTitle">Mark Attendance</h1>
+      </div>
       <div class="topbar-date" id="liveClock">--</div>
     </div>
 
@@ -1449,6 +1452,11 @@ function triggerDownload(blob, filename) {
 document.getElementById('addStudentModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function goBackToDashboard() {
+  window.location.href = 'teacher-dashboard.html';
+}
 </script>
 </body>
 </html>
