@@ -180,7 +180,7 @@ career-line-coaching/
 
 ## Deployment
 
-### Backend (Railway/Render)
+### Backend (Render)
 ```bash
 # Set environment variables
 MONGO_URI=<mongodb-atlas-uri>
@@ -189,7 +189,7 @@ JWT_SECRET=<secret>
 NODE_ENV=production
 ```
 
-### Frontend (Vercel/Netlify)
+### Frontend (Vercel)
 - Connect repository
 - Deploy `frontend` directory
 - Update API URLs to production backend
