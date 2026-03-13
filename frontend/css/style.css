@@ -156,6 +156,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0;
+    padding: 0 20px;
 }
 
 .logo h2 {
@@ -1032,4 +1034,271 @@ html {
     color: white;
     padding: 60px 20px 30px;
     transition: all 0.3s;
+}
+
+/* Responsive Design */
+@media (min-width: 1201px) {
+    .logo h2 {
+        font-size: 32px;
+    }
+    
+    .nav-links {
+        gap: 40px;
+    }
+    
+    .nav-links a {
+        font-size: 16px;
+    }
+    
+    .navbar .container {
+        padding: 0 40px;
+    }
+}
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .banner-content h1 {
+        font-size: 3.2rem;
+    }
+    
+    .banner-content h2 {
+        font-size: 2.4rem;
+    }
+    
+    .stats {
+        gap: 30px;
+    }
+    
+    .stat-box {
+        padding: 25px 35px;
+    }
+    
+    .stat-box h3 {
+        font-size: 2.8rem;
+    }
+    
+    .nav-links {
+        gap: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    /* Mobile Navbar */
+    .navbar .container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .logo {
+        text-align: center;
+    }
+    
+    .logo h2 {
+        font-size: 24px;
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .nav-links a {
+        font-size: 14px;
+    }
+    
+    /* Top Bar Mobile */
+    .top-bar .container {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .top-links {
+        order: 2;
+    }
+    
+    .top-actions {
+        order: 1;
+        justify-content: center;
+    }
+    
+    /* Hero Banner Mobile */
+    .hero-banner {
+        padding: 60px 20px;
+    }
+    
+    .banner-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .banner-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .result-text {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .stat-box {
+        padding: 20px 30px;
+    }
+    
+    .stat-box h3 {
+        font-size: 2.5rem;
+    }
+    
+    /* Boards Section Mobile */
+    .board-cards {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .board-card {
+        padding: 30px 20px;
+    }
+    
+    /* Course Grid Mobile */
+    .course-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .course-card {
+        padding: 25px;
+    }
+    
+    /* Features Grid Mobile */
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .feature-item {
+        padding: 20px;
+    }
+    
+    /* Results Section Mobile */
+    .result-highlights {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .result-item {
+        padding: 25px;
+    }
+    
+    /* Footer Mobile */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+    }
+    
+    /* Dashboard Mobile */
+    .dashboard-content {
+        padding: 1rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-card {
+        padding: 1.5rem;
+    }
+    
+    /* Login Mobile */
+    .login-box {
+        padding: 2rem;
+        margin: 10px;
+    }
+    
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+    
+    .role-selector {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 5px;
+    }
+    
+    .logo h2 {
+        font-size: 20px;
+    }
+    
+    .nav-links {
+        gap: 15px;
+    }
+    
+    .nav-links a {
+        font-size: 13px;
+    }
+    
+    .banner-content h1 {
+        font-size: 2rem;
+    }
+    
+    .banner-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .result-text {
+        font-size: 1rem;
+    }
+    
+    .stat-box h3 {
+        font-size: 2rem;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+    }
+    
+    .board-card h3 {
+        font-size: 1.6rem;
+    }
+    
+    .course-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .feature-item h3 {
+        font-size: 1.4rem;
+    }
+    
+    .result-item h4 {
+        font-size: 2rem;
+    }
+    
+    .login-box {
+        padding: 1.5rem;
+    }
+    
+    .form-group input {
+        padding: 0.8rem;
+    }
+    
+    .btn-submit {
+        padding: 0.9rem;
+    }
 }
