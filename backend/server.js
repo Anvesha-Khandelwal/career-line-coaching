@@ -343,6 +343,10 @@ app.use((err, req, res, next) => {
         error: err.message
     });
 });
+// Add these lines after your auth routes
+app.use('/api/students', require('./routes/students'));
+app.use('/api/attendance', require('./routes/attendance'));
+app.use('/api/timetable', require('./routes/timetable'));
 
 // ============================================
 // START SERVER

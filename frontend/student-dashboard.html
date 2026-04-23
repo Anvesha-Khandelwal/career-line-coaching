@@ -93,6 +93,103 @@
         </div>
     </div>
 
-    <script src="js/student-dashboard.js"></script>
+   <script>
+const API_BASE_URL = 'http://localhost:5000/api';
+
+window.onload = function() {
+    checkAuth();
+    loadStudentData();
+};
+
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    const name = localStorage.getItem('userName');
+    
+    if (!token || role !== 'student') {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    document.getElementById('studentName').textContent = '👨‍🎓 ' + (name || 'Student');
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+}
+
+async function loadStudentData() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+        console.error('No email found');
+        return;
+    }
+    
+    try {
+        // Load student details and fee
+        const studentResponse = await fetch(`${API_BASE_URL}/students/email/${encodeURIComponent(email)}`);
+        const studentData = await studentResponse.json();
+        
+        if (studentData.success) {
+            const student = studentData.data;
+            displayFeeInfo(student);
+        }
+        
+        // Load attendance
+        const attendanceResponse = await fetch(`${API_BASE_URL}/attendance/student/${encodeURIComponent(email)}`);
+        const attendanceData = await attendanceResponse.json();
+        
+        if (attendanceData.success) {
+            displayAttendance(attendanceData.stats);
+        }
+        
+        // Load timetable
+        const studentClass = studentData.data.class;
+        const timetableResponse = await fetch(`${API_BASE_URL}/timetable/class/${studentClass}`);
+        const timetableData = await timetableResponse.json();
+        
+        if (timetableData.success) {
+            displayTimetable(timetableData.data);
+        }
+        
+    } catch (error) {
+        console.error('Error loading student data:', error);
+    }
+}
+
+function displayFeeInfo(student) {
+    document.getElementById('totalFeeAmount').textContent = '₹' + (student.totalFee || 0);
+    document.getElementById('feePaidAmount').textContent = '₹' + (student.feePaid || 0);
+    const pending = (student.totalFee || 0) - (student.feePaid || 0);
+    document.getElementById('feePendingAmount').textContent = '₹' + pending;
+}
+
+function displayAttendance(stats) {
+    document.getElementById('totalClasses').textContent = stats.total || 0;
+    document.getElementById('attendedClasses').textContent = stats.present || 0;
+    document.getElementById('attendancePercentage').textContent = stats.percentage + '%';
+}
+
+function displayTimetable(timetable) {
+    const tbody = document.getElementById('timetableBody');
+    
+    if (timetable.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No timetable available</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = timetable.map(entry => `
+        <tr>
+            <td>${entry.day}</td>
+            <td>${entry.time}</td>
+            <td>${entry.subject}</td>
+            <td>${entry.teacher || 'Not assigned'}</td>
+        </tr>
+    `).join('');
+}
+</script>
 </body>
 </html>
